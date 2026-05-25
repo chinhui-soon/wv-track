@@ -423,18 +423,24 @@ textarea.fc{resize:vertical;min-height:85px}
     <div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9">
       <div style="font-size:11px;color:#94a3b8;text-align:center;margin-bottom:8px">Demo accounts</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
-        <span onclick="fillLogin('admin','admin123')" style="font-size:11px;padding:3px 9px;background:#eef2ff;color:#6366f1;border-radius:6px;cursor:pointer;font-weight:600">admin</span>
-        <span onclick="fillLogin('pm','pm123')" style="font-size:11px;padding:3px 9px;background:#eef2ff;color:#6366f1;border-radius:6px;cursor:pointer;font-weight:600">pm</span>
+        <div style="font-size:10px;color:#94a3b8;width:100%;margin-bottom:2px">🟣 Product</div>
+        <span onclick="fillLogin('product_mgr','product123')" style="font-size:11px;padding:3px 9px;background:#f5f3ff;color:#8b5cf6;border-radius:6px;cursor:pointer;font-weight:600">product_mgr</span>
+        <span onclick="fillLogin('ba','ba123')" style="font-size:11px;padding:3px 9px;background:#eef2ff;color:#6366f1;border-radius:6px;cursor:pointer;font-weight:600">ba</span>
+        <span onclick="fillLogin('designer','designer123')" style="font-size:11px;padding:3px 9px;background:#faf5ff;color:#a855f7;border-radius:6px;cursor:pointer;font-weight:600">designer</span>
+        <div style="font-size:10px;color:#94a3b8;width:100%;margin:4px 0 2px">🟢 IT</div>
+        <span onclick="fillLogin('it_lead','it123')" style="font-size:11px;padding:3px 9px;background:#f0fdf4;color:#10b981;border-radius:6px;cursor:pointer;font-weight:600">it_lead</span>
         <span onclick="fillLogin('dev','dev123')" style="font-size:11px;padding:3px 9px;background:#f0fdf4;color:#10b981;border-radius:6px;cursor:pointer;font-weight:600">dev</span>
         <span onclick="fillLogin('qa','qa123')" style="font-size:11px;padding:3px 9px;background:#fffbeb;color:#f59e0b;border-radius:6px;cursor:pointer;font-weight:600">qa</span>
-        <span onclick="fillLogin('ba','ba123')" style="font-size:11px;padding:3px 9px;background:#eff6ff;color:#3b82f6;border-radius:6px;cursor:pointer;font-weight:600">ba</span>
-        <span onclick="fillLogin('support','support123')" style="font-size:11px;padding:3px 9px;background:#fdf4ff;color:#ec4899;border-radius:6px;cursor:pointer;font-weight:600">support</span>
-        <span onclick="fillLogin('finance','finance123')" style="font-size:11px;padding:3px 9px;background:#f0fdfa;color:#14b8a6;border-radius:6px;cursor:pointer;font-weight:600">finance</span>
-        <span onclick="fillLogin('hr','hr123')" style="font-size:11px;padding:3px 9px;background:#fff7ed;color:#f97316;border-radius:6px;cursor:pointer;font-weight:600">hr</span>
+        <span onclick="fillLogin('it_support','support123')" style="font-size:11px;padding:3px 9px;background:#fdf4ff;color:#ec4899;border-radius:6px;cursor:pointer;font-weight:600">it_support</span>
+        <div style="font-size:10px;color:#94a3b8;width:100%;margin:4px 0 2px">Other Depts</div>
+        <span onclick="fillLogin('finance_mgr','finance123')" style="font-size:11px;padding:3px 9px;background:#f0fdfa;color:#14b8a6;border-radius:6px;cursor:pointer;font-weight:600">finance_mgr</span>
+        <span onclick="fillLogin('hr_mgr','hr123')" style="font-size:11px;padding:3px 9px;background:#fff7ed;color:#f97316;border-radius:6px;cursor:pointer;font-weight:600">hr_mgr</span>
+        <span onclick="fillLogin('bd_mgr','bd123')" style="font-size:11px;padding:3px 9px;background:#f0f9ff;color:#0ea5e9;border-radius:6px;cursor:pointer;font-weight:600">bd_mgr</span>
+        <span onclick="fillLogin('sales_mgr','sales123')" style="font-size:11px;padding:3px 9px;background:#f0fdf4;color:#22c55e;border-radius:6px;cursor:pointer;font-weight:600">sales_mgr</span>
+        <span onclick="fillLogin('mkt_mgr','mkt123')" style="font-size:11px;padding:3px 9px;background:#fdf4ff;color:#d946ef;border-radius:6px;cursor:pointer;font-weight:600">mkt_mgr</span>
+        <span onclick="fillLogin('cs_mgr','cs123')" style="font-size:11px;padding:3px 9px;background:#fff1f2;color:#f43f5e;border-radius:6px;cursor:pointer;font-weight:600">cs_mgr</span>
+        <span onclick="fillLogin('cs','csagent123')" style="font-size:11px;padding:3px 9px;background:#fff1f2;color:#f43f5e;border-radius:6px;cursor:pointer;font-weight:600">cs</span>
         <span onclick="fillLogin('mgmt','mgmt123')" style="font-size:11px;padding:3px 9px;background:#faf5ff;color:#8b5cf6;border-radius:6px;cursor:pointer;font-weight:600">mgmt</span>
-        <span onclick="fillLogin('bd','bd123')" style="font-size:11px;padding:3px 9px;background:#f0f9ff;color:#0ea5e9;border-radius:6px;cursor:pointer;font-weight:600">bd</span>
-        <span onclick="fillLogin('sales','sales123')" style="font-size:11px;padding:3px 9px;background:#f0fdf4;color:#22c55e;border-radius:6px;cursor:pointer;font-weight:600">sales</span>
-        <span onclick="fillLogin('marketing','marketing123')" style="font-size:11px;padding:3px 9px;background:#faf5ff;color:#a855f7;border-radius:6px;cursor:pointer;font-weight:600">marketing</span>
       </div>
     </div>
   </div>
@@ -1209,33 +1215,95 @@ function reRenderCurrentPage() {
 
 // ═══════════════ USERS & ROLES ═══════════════
 const CREDENTIALS = {
-  admin:   'admin123',
-  pm:      'pm123',
-  dev:     'dev123',
-  qa:      'qa123',
-  ba:      'ba123',
-  support: 'support123',
-  finance: 'finance123',
-  hr:      'hr123',
-  mgmt:    'mgmt123',
-  bd:      'bd123',
-  sales:   'sales123',
-  marketing:'marketing123',
+  // Product Dept
+  product_mgr: 'product123',
+  ba:          'ba123',
+  designer:    'designer123',
+  // IT Dept
+  it_lead:     'it123',
+  dev:         'dev123',
+  qa:          'qa123',
+  it_support:  'support123',
+  // Finance
+  finance_mgr: 'finance123',
+  finance:     'finexec123',
+  // HR
+  hr_mgr:      'hr123',
+  hr:          'hrexec123',
+  // BD
+  bd_mgr:      'bd123',
+  bd:          'bdexec123',
+  // Sales
+  sales_mgr:   'sales123',
+  sales:       'salesexec123',
+  // Marketing
+  mkt_mgr:     'mkt123',
+  marketing:   'mktexec123',
+  // Customer Service
+  cs_mgr:      'cs123',
+  cs:          'csagent123',
+  // Management
+  mgmt:        'mgmt123',
 };
 
 const USERS = {
-  admin:    {id:'admin',    name:'System Admin',    role:'Admin',                  dept:'IT',          color:'#6366f1', nav:['dashboard','backlog','sprints','items','kanban','pipelines','test-plans','reports','team','settings']},
-  pm:       {id:'pm',       name:'Chin Hui Soon',   role:'Project Manager',        dept:'PMO',         color:'#6366f1', nav:['dashboard','backlog','sprints','items','kanban','reports','team','approvals']},
-  dev:      {id:'dev',      name:'Ahmad Razif',     role:'Developer',              dept:'IT',          color:'#10b981', nav:['my-dashboard','my-work','sprints','kanban','log-bug','pipelines']},
-  qa:       {id:'qa',       name:'Sarah Lim',       role:'QA Engineer',            dept:'QA',          color:'#f59e0b', nav:['my-dashboard','my-work','bugs','test-plans','log-bug','kanban']},
-  ba:       {id:'ba',       name:'David Tan',       role:'Business Analyst',       dept:'Business',    color:'#3b82f6', nav:['my-dashboard','backlog','requests','items','submit-request']},
-  support:  {id:'support',  name:'Nurul Ain',       role:'IT Support',             dept:'IT Support',  color:'#ec4899', nav:['my-dashboard','my-work','service-requests','log-bug','submit-request']},
-  finance:  {id:'finance',  name:'Lee Wei Hong',    role:'Finance Executive',      dept:'Finance',     color:'#14b8a6', nav:['my-dashboard','finance-requests','approvals','reports']},
-  hr:       {id:'hr',       name:'Farah Nadia',     role:'HR Executive',           dept:'HR',          color:'#f97316', nav:['my-dashboard','hr-requests','approvals','submit-request']},
-  mgmt:     {id:'mgmt',     name:"Dato' Razak",     role:'Director',               dept:'Management',  color:'#8b5cf6', nav:['exec-dashboard','reports','team']},
-  bd:       {id:'bd',       name:'Kevin Ong',       role:'Business Development',   dept:'BD',          color:'#0ea5e9', nav:['my-dashboard','my-work','requests','submit-request','reports']},
-  sales:    {id:'sales',    name:'Jenny Tan',       role:'Sales Executive',        dept:'Sales',       color:'#22c55e', nav:['my-dashboard','my-work','requests','submit-request','reports']},
-  marketing:{id:'marketing',name:'Priya Nair',      role:'Marketing Executive',    dept:'Marketing',   color:'#a855f7', nav:['my-dashboard','my-work','requests','submit-request','reports']},
+  // ── PRODUCT DEPT ──────────────────────────────────────────────────────────
+  product_mgr:{id:'product_mgr',name:'Chin Hui Soon',  role:'Product Manager',   dept:'Product',    isLead:true,  color:'#8b5cf6',
+    nav:['dashboard','requests','backlog','items','kanban','test-plans','bugs','reports','team','settings']},
+  ba:         {id:'ba',         name:'David Tan',       role:'Business Analyst',  dept:'Product',    isLead:false, color:'#6366f1',
+    nav:['my-dashboard','requests','backlog','my-work','submit-request']},
+  designer:   {id:'designer',   name:'Priya Nair',      role:'Product Designer',  dept:'Product',    isLead:false, color:'#a855f7',
+    nav:['my-dashboard','my-work','requests','submit-request']},
+
+  // ── IT DEPT ───────────────────────────────────────────────────────────────
+  it_lead:    {id:'it_lead',    name:'Ahmad Razif',     role:'IT Lead',           dept:'IT',         isLead:true,  color:'#10b981',
+    nav:['dashboard','items','backlog','sprints','kanban','bugs','pipelines','test-plans','reports','team','settings']},
+  dev:        {id:'dev',        name:'Kevin Ong',       role:'Developer',         dept:'IT',         isLead:false, color:'#10b981',
+    nav:['my-dashboard','my-work','sprints','kanban','log-bug','pipelines']},
+  qa:         {id:'qa',         name:'Sarah Lim',       role:'QA Engineer',       dept:'IT',         isLead:false, color:'#f59e0b',
+    nav:['my-dashboard','my-work','bugs','test-plans','log-bug','kanban']},
+  it_support: {id:'it_support', name:'Nurul Ain',       role:'IT Support',        dept:'IT',         isLead:false, color:'#ec4899',
+    nav:['my-dashboard','service-requests','my-work','log-bug','submit-request']},
+
+  // ── FINANCE ───────────────────────────────────────────────────────────────
+  finance_mgr:{id:'finance_mgr',name:'Lee Wei Hong',   role:'Finance Manager',   dept:'Finance',    isLead:true,  color:'#14b8a6',
+    nav:['my-dashboard','finance-requests','approvals','submit-request','reports','team']},
+  finance:    {id:'finance',    name:'Jenny Tan',       role:'Finance Executive', dept:'Finance',    isLead:false, color:'#14b8a6',
+    nav:['my-dashboard','finance-requests','submit-request']},
+
+  // ── HR ────────────────────────────────────────────────────────────────────
+  hr_mgr:     {id:'hr_mgr',     name:'Farah Nadia',     role:'HR Manager',        dept:'HR',         isLead:true,  color:'#f97316',
+    nav:['my-dashboard','hr-requests','approvals','submit-request','reports','team']},
+  hr:         {id:'hr',         name:'Amirah Zain',     role:'HR Executive',      dept:'HR',         isLead:false, color:'#f97316',
+    nav:['my-dashboard','hr-requests','submit-request']},
+
+  // ── BD ────────────────────────────────────────────────────────────────────
+  bd_mgr:     {id:'bd_mgr',     name:'Raymond Loh',     role:'BD Manager',        dept:'BD',         isLead:true,  color:'#0ea5e9',
+    nav:['my-dashboard','my-work','submit-request','reports','team']},
+  bd:         {id:'bd',         name:'Michelle Yap',    role:'BD Executive',      dept:'BD',         isLead:false, color:'#0ea5e9',
+    nav:['my-dashboard','my-work','submit-request']},
+
+  // ── SALES ─────────────────────────────────────────────────────────────────
+  sales_mgr:  {id:'sales_mgr',  name:'Eric Tan',        role:'Sales Manager',     dept:'Sales',      isLead:true,  color:'#22c55e',
+    nav:['my-dashboard','my-work','submit-request','reports','team']},
+  sales:      {id:'sales',      name:'Lisa Wong',       role:'Sales Executive',   dept:'Sales',      isLead:false, color:'#22c55e',
+    nav:['my-dashboard','my-work','submit-request']},
+
+  // ── MARKETING ─────────────────────────────────────────────────────────────
+  mkt_mgr:    {id:'mkt_mgr',    name:'Siti Rahimah',    role:'Marketing Manager', dept:'Marketing',  isLead:true,  color:'#d946ef',
+    nav:['my-dashboard','my-work','submit-request','reports','team']},
+  marketing:  {id:'marketing',  name:'Jason Khoo',      role:'Marketing Exec',    dept:'Marketing',  isLead:false, color:'#d946ef',
+    nav:['my-dashboard','my-work','submit-request']},
+
+  // ── CUSTOMER SERVICE ──────────────────────────────────────────────────────
+  cs_mgr:     {id:'cs_mgr',     name:'Grace Koh',       role:'CS Manager',        dept:'CS',         isLead:true,  color:'#f43f5e',
+    nav:['my-dashboard','service-requests','submit-request','reports','team']},
+  cs:         {id:'cs',         name:'Henry Lau',       role:'CS Agent',          dept:'CS',         isLead:false, color:'#f43f5e',
+    nav:['my-dashboard','service-requests','submit-request','log-bug']},
+
+  // ── MANAGEMENT ────────────────────────────────────────────────────────────
+  mgmt:       {id:'mgmt',       name:"Dato' Razak",     role:'Director',          dept:'Management', isLead:true,  color:'#8b5cf6',
+    nav:['exec-dashboard','reports','team']},
 };
 const NAV_META = {
   'dashboard':         {label:'Dashboard',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>`, section:'Overview'},
@@ -1261,8 +1329,8 @@ const NAV_META = {
   'settings':          {label:'Settings',             icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>`, section:'Admin'},
 };
 
-const A_COLORS = {'Chin Hui':'#6366f1','Ahmad Razif':'#10b981','Sarah Lim':'#f59e0b','David Tan':'#3b82f6','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Farah Nadia':'#f97316',"Dato' Razak":'#8b5cf6','System Admin':'#6366f1','Kevin Ong':'#0ea5e9','Jenny Tan':'#22c55e','Priya Nair':'#a855f7'};
-const DEPT_COLORS = {'IT':'#eef2ff','PMO':'#f3e8ff','Finance':'#f0fdf4','HR':'#fdf4ff','Business':'#eff6ff','IT Support':'#fff7ed','Management':'#faf5ff','QA':'#fffbeb','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#faf5ff'};
+const A_COLORS = {'Chin Hui Soon':'#8b5cf6','David Tan':'#6366f1','Priya Nair':'#a855f7','Ahmad Razif':'#10b981','Kevin Ong':'#0ea5e9','Sarah Lim':'#f59e0b','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Jenny Tan':'#14b8a6','Farah Nadia':'#f97316','Amirah Zain':'#f97316','Raymond Loh':'#0ea5e9','Michelle Yap':'#0ea5e9','Eric Tan':'#22c55e','Lisa Wong':'#22c55e','Siti Rahimah':'#d946ef','Jason Khoo':'#d946ef','Grace Koh':'#f43f5e','Henry Lau':'#f43f5e',"Dato' Razak":'#8b5cf6'};
+const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR':'#fff7ed','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#fdf4ff','CS':'#fff1f2','Management':'#faf5ff'};
 
 // ═══════════════ LIVE DATA (populated by Firestore or demo) ═══════════════
 let items = [], serviceItems = [], hrItems = [], testCases = [], activities = [];
@@ -1861,21 +1929,90 @@ function renderUserSettings(){
 }
 
 // ═══════════════ PANEL ═══════════════
+function getWorkflowActions(item) {
+  if (!currentUser || !item) return '';
+  const s = item.status;
+  const dept = currentUser.dept;
+  const isLead = currentUser.isLead;
+  const id = item.id;
+  let btns = [];
+
+  // Product team: review submitted requests
+  if (s === 'submitted' && dept === 'Product') {
+    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','product-review','Product team is reviewing this request.')">📋 Start Review</button>`);
+  }
+  if (s === 'product-review' && dept === 'Product') {
+    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','it-queue','Product approved. Sent to IT queue.')">✅ Approve → Send to IT</button>`);
+    btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','rejected','Request rejected by Product team.')">❌ Reject</button>`);
+  }
+  // IT Lead: assign from queue
+  if (s === 'it-queue' && dept === 'IT' && isLead) {
+    btns.push(`<button class="btn btn-sm" style="background:#6366f1;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','IT Lead assigned to developer.')">🔧 Assign & Start Development</button>`);
+  }
+  // Developer: mark ready for testing
+  if (s === 'in-progress' && dept === 'IT') {
+    btns.push(`<button class="btn btn-sm" style="background:#8b5cf6;color:#fff;border:none" onclick="workflowAction('${id}','testing','Development complete. Ready for testing.')">🧪 Mark Ready for Testing</button>`);
+  }
+  // QA/Product: test pass or fail
+  if (s === 'testing' && (dept === 'IT' || dept === 'Product')) {
+    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','done','Testing passed. Item completed.')">✅ Testing Passed → Done</button>`);
+    btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','Bug found during testing. Sent back to developer.')">🐛 Bug Found → Back to Dev</button>`);
+  }
+  // Any lead can put on hold
+  if (!['done','rejected'].includes(s) && isLead && btns.length === 0) {
+    btns.push(`<button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none" onclick="workflowAction('${id}','blocked','Item blocked/put on hold.')">⏸ Put On Hold</button>`);
+  }
+
+  if (!btns.length) return '';
+  return `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin-bottom:8px">⚡ Workflow Actions</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px">${btns.join('')}</div>
+  </div>`;
+}
+
+async function workflowAction(id, newStatus, logMsg) {
+  await dbSave('items', id, {status: newStatus});
+  await dbAddActivity(`${currentUser.name}: ${logMsg} <b>${id}</b>`,
+    newStatus==='done'?'#10b981':newStatus==='rejected'?'#ef4444':newStatus==='testing'?'#8b5cf6':'#f59e0b');
+  if(isDemoMode){const item=items.find(i=>i.id===id);if(item)item.status=newStatus;refreshStats();reRenderCurrentPage();}
+  showToast('Updated: '+newStatus.replace('-',' '));
+  openPanel(id);
+}
+
 function openPanel(id){
   isOpen=true;openItemId=id;
   const item=items.find(i=>i.id===id)||serviceItems.find(i=>i.id===id)||hrItems.find(i=>i.id===id);
   if(!item)return;
   document.getElementById('panel-id').textContent=item.id;
   document.getElementById('panel-title').textContent=item.title;
-  const canEdit=currentUser&&!['mgmt'].includes(currentUser.id);
-  const statusBtns=canEdit?`
-    <div class="pf">
-      <div class="pfl">Change Status</div>
-      <div class="flex g2" style="flex-wrap:wrap;margin-top:4px">
-        ${['open','in-progress','review','done','closed'].map(s=>`<button class="btn btn-ghost btn-sm" style="${item.status===s?'background:var(--accent);color:#fff;border-color:var(--accent)':''}" onclick="changeStatus('${id}','${s}')">${s.replace('-',' ')}</button>`).join('')}
+  const canEdit=currentUser&&currentUser.dept!=='Management';
+  const workflowBtns = getWorkflowActions(item);
+
+  // Workflow stage progress bar
+  const stages = ['submitted','product-review','it-queue','in-progress','testing','done'];
+  const stageLabels = {'submitted':'Submitted','product-review':'Product Review','it-queue':'IT Queue','in-progress':'In Dev','testing':'Testing','done':'Done'};
+  const curIdx = stages.indexOf(item.status);
+  const stageBar = ['request','feature','task','story','epic','bug'].includes(item.type) && curIdx >= 0 ? `
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b;margin-bottom:8px">Workflow Progress</div>
+      <div style="display:flex;gap:0;align-items:center">
+        ${stages.map((st,i)=>`
+          <div style="flex:1;text-align:center">
+            <div style="width:22px;height:22px;border-radius:50%;margin:0 auto 4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;
+              background:${i<curIdx?'#10b981':i===curIdx?'#6366f1':'#e2e8f0'};
+              color:${i<=curIdx?'#fff':'#94a3b8'}">
+              ${i<curIdx?'✓':i+1}
+            </div>
+            <div style="font-size:9px;color:${i===curIdx?'#6366f1':i<curIdx?'#10b981':'#94a3b8'};font-weight:${i===curIdx?'700':'500'}">${stageLabels[st]}</div>
+          </div>
+          ${i<stages.length-1?`<div style="flex:none;width:20px;height:2px;background:${i<curIdx?'#10b981':'#e2e8f0'};margin-bottom:18px"></div>`:''}
+        `).join('')}
       </div>
-    </div>`:'';
+    </div>` : '';
+
   document.getElementById('pb').innerHTML=`
+    ${stageBar}
+    ${workflowBtns}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
       <div class="pf"><div class="pfl">Status</div>${statusBadge(item.status||'open')}</div>
       <div class="pf"><div class="pfl">Priority</div>${prioBadge(item.priority||'medium')}</div>
@@ -1887,7 +2024,12 @@ function openPanel(id){
       ${item.amount?`<div class="pf"><div class="pfl">Amount</div><span style="font-size:14px;font-weight:700;color:#10b981">${item.amount}</span></div>`:''}
       <div class="pf"><div class="pfl">Created</div><span style="font-size:13px">${item.created||'—'}</span></div>
     </div>
-    ${statusBtns}
+    ${canEdit?`<div class="pf" style="margin-bottom:14px">
+      <div class="pfl">Change Status</div>
+      <div class="flex g2" style="flex-wrap:wrap;margin-top:4px">
+        ${['open','submitted','product-review','it-queue','in-progress','testing','done','blocked','rejected'].map(s=>`<button class="btn btn-ghost btn-sm" style="font-size:11px;${item.status===s?'background:var(--accent);color:#fff;border-color:var(--accent)':''}" onclick="changeStatus('${id}','${s}')">${s.replace('-',' ')}</button>`).join('')}
+      </div>
+    </div>`:''}
     <div class="divider"></div>
     <div class="pf"><div class="pfl">Description</div><div style="font-size:13px;line-height:1.6;color:var(--text-muted);margin-top:4px">${item.desc||'No description.'}</div></div>
     ${item.env?`<div class="pf"><div class="pfl">Environment</div><span class="badge b-medium">${item.env}</span></div>`:''}
@@ -1945,7 +2087,7 @@ async function submitItem(e,type){
   const idNum = String(nextId).padStart(3,'0');
   const id='FT-'+idNum; nextId++;
 
-  const newItem={id,title,type:itemType,priority,status:'open',assignee,dept,
+  const newItem={id,title,type:itemType,priority,status:'submitted',assignee,dept,
     created:new Date().toISOString().slice(0,10),sprint:'Backlog',points:3,desc,
     env:isBug?(document.getElementById('bug-env')?document.getElementById('bug-env').value:''):'',
     comments:[],
@@ -1984,8 +2126,8 @@ function prioBadge(v){
   return`<span class="badge b-${v||'low'}"><span class="prio-dot pd-${v||'low'}"></span>${m[v]||v}</span>`;
 }
 function statusBadge(s){
-  const m={open:'Open','in-progress':'In Progress',review:'Review',done:'Done',closed:'Closed',blocked:'Blocked'};
-  const dots={open:'#3b82f6','in-progress':'#d97706',review:'#9333ea',done:'#10b981',closed:'#94a3b8',blocked:'#ef4444'};
+  const m={open:'Open','in-progress':'In Progress',review:'In Review',done:'Done',closed:'Closed',blocked:'Blocked',submitted:'Submitted','product-review':'Product Review',approved:'Approved',testing:'Testing',rejected:'Rejected','it-queue':'IT Queue'};
+  const dots={open:'#3b82f6','in-progress':'#d97706',review:'#9333ea',done:'#10b981',closed:'#94a3b8',blocked:'#ef4444',submitted:'#f59e0b','product-review':'#8b5cf6',approved:'#10b981',testing:'#6366f1',rejected:'#ef4444','it-queue':'#0ea5e9'};
   return`<span class="badge b-${s||'open'}"><span class="sd" style="background:${dots[s]||'#94a3b8'}"></span>${m[s]||s}</span>`;
 }
 function ini(n){if(!n)return'?';return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
