@@ -137,8 +137,11 @@ td{padding:11px 14px;font-size:13px;vertical-align:middle}
 .col-title{font-size:13px;font-weight:700;flex:1}
 .col-count{background:var(--border);color:var(--text-muted);font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px}
 .kanban-items{display:flex;flex-direction:column;gap:8px}
-.kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px;cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px;cursor:grab;transition:all .15s;box-shadow:var(--sh)}
 .kanban-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.1);transform:translateY(-1px)}
+.kanban-card.dragging{opacity:.4;cursor:grabbing;transform:scale(1.02);box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.kanban-col.drag-over{background:#eef2ff;border:2px dashed #6366f1}
+.kanban-items.drag-over{min-height:80px}
 .kc-title{font-size:12.5px;font-weight:600;margin-bottom:7px;line-height:1.4}
 .kc-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
 .kc-id{font-size:10px;color:var(--text-muted);font-weight:600;font-family:monospace}
@@ -2264,23 +2267,60 @@ function filterSub(type,f,btn){
 }
 
 // ═══════════════ KANBAN ═══════════════
+function kanbanCardHTML(item){
+  return`<div class="kanban-card" draggable="true" data-id="${item.id}"
+    ondragstart="onCardDragStart(event)"
+    ondragend="onCardDragEnd(event)"
+    onclick="openPanel('${item.id}')">
+    <div class="kc-title">${item.title}</div>
+    <div class="kc-meta"><span class="kc-id">${item.id}</span>${typeBadge(item.type)}${prioBadge(item.priority)}<div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}" title="${item.assignee}">${ini(item.assignee)}</div></div>
+  </div>`;
+}
+function kanbanColHTML(col, items){
+  return`<div class="kanban-col" data-status="${col.k}"
+    ondragover="onColDragOver(event)"
+    ondragleave="onColDragLeave(event)"
+    ondrop="onColDrop(event,'${col.k}')">
+    <div class="kanban-col-header"><div class="col-dot" style="background:${col.c}"></div><span class="col-title">${col.l}</span><span class="col-count">${items.length}</span></div>
+    <div class="kanban-items">${items.map(kanbanCardHTML).join('')||'<div style="padding:12px;text-align:center;font-size:12px;color:#94a3b8">Drop here</div>'}</div>
+  </div>`;
+}
 function renderKanban(){
   const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
   let data=[...items];
   if(currentUser&&!['product_mgr','it_mgr'].includes(currentUser.id)){
     if(!currentUser.isLead)data=data.filter(i=>i.assignee===currentUser.name);
   }
-  document.getElementById('kanban-board').innerHTML=cols.map(col=>{
-    const ci=data.filter(i=>i.status===col.k);
-    return`<div class="kanban-col">
-      <div class="kanban-col-header"><div class="col-dot" style="background:${col.c}"></div><span class="col-title">${col.l}</span><span class="col-count">${ci.length}</span></div>
-      <div class="kanban-items">${ci.map(item=>`
-        <div class="kanban-card" onclick="openPanel('${item.id}')">
-          <div class="kc-title">${item.title}</div>
-          <div class="kc-meta"><span class="kc-id">${item.id}</span>${typeBadge(item.type)}${prioBadge(item.priority)}<div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}" title="${item.assignee}">${ini(item.assignee)}</div></div>
-        </div>`).join('')}</div>
-    </div>`;
-  }).join('');
+  document.getElementById('kanban-board').innerHTML=cols.map(col=>kanbanColHTML(col,data.filter(i=>i.status===col.k))).join('');
+}
+
+// ── Drag & Drop handlers ──────────────────────────────────────────────────
+let dragItemId = null;
+function onCardDragStart(e){
+  dragItemId = e.currentTarget.dataset.id;
+  e.currentTarget.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onCardDragEnd(e){
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('.kanban-col').forEach(c=>c.classList.remove('drag-over'));
+}
+function onColDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  e.currentTarget.classList.add('drag-over');
+}
+function onColDragLeave(e){
+  e.currentTarget.classList.remove('drag-over');
+}
+async function onColDrop(e, newStatus){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragItemId) return;
+  const item = items.find(i=>i.id===dragItemId);
+  if (!item || item.status === newStatus) return;
+  await changeStatus(dragItemId, newStatus);
+  dragItemId = null;
 }
 
 // ═══════════════ SPRINT MODAL & FUNCTIONS ═══════════════
@@ -2394,17 +2434,7 @@ function renderSprintBoard(){
   if(sprintListSection) { sprintListSection.style.display='block'; renderSprintList(); }
 
   const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
-  document.getElementById('sprint-board').innerHTML=cols.map(col=>{
-    const ci=sprintItems.filter(i=>i.status===col.k);
-    return`<div class="kanban-col">
-      <div class="kanban-col-header"><div class="col-dot" style="background:${col.c}"></div><span class="col-title">${col.l}</span><span class="col-count">${ci.length}</span></div>
-      <div class="kanban-items">${ci.map(item=>`
-        <div class="kanban-card" onclick="openPanel('${item.id}')">
-          <div class="kc-title">${item.title}</div>
-          <div class="kc-meta"><span class="kc-id">${item.id}</span>${typeBadge(item.type)}<span style="font-size:10px;background:#eef2ff;color:#4338ca;padding:1px 5px;border-radius:4px;font-weight:700">${item.points}pt</span><div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}" title="${item.assignee}">${ini(item.assignee)}</div></div>
-        </div>`).join('')||`<div style="padding:12px;text-align:center;font-size:12px;color:#94a3b8">Empty</div>`}</div>
-    </div>`;
-  }).join('');
+  document.getElementById('sprint-board').innerHTML=cols.map(col=>kanbanColHTML(col,sprintItems.filter(i=>i.status===col.k))).join('');
 }
 
 function renderSprintList() {
