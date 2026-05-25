@@ -778,7 +778,8 @@ textarea.fc{resize:vertical;min-height:85px}
               <div class="fg full"><label>Expected vs Actual</label><textarea class="fc" id="bug-expected" placeholder="Expected: …&#10;Actual: …" style="min-height:65px"></textarea></div>
               <div class="fg"><label>Severity</label><select class="fc" id="bug-priority"><option value="low">Low — Cosmetic</option><option value="medium" selected>Medium — Functional</option><option value="high">High — Major Impact</option><option value="critical">Critical — Blocker</option></select></div>
               <div class="fg"><label>Environment</label><select class="fc" id="bug-env"><option>Production</option><option>Staging</option><option>UAT</option><option>Development</option></select></div>
-              <div class="fg"><label>Assign To (IT)</label><select class="fc" id="bug-assignee"></select></div>
+              <div class="fg"><label>Assign To — Dept</label><select class="fc" id="bug-dept" onchange="onBugDeptChange()"></select></div>
+              <div class="fg"><label>Assign To — Name</label><select class="fc" id="bug-assignee"></select></div>
               <div class="fg"><label>Browser / Device</label><input class="fc" id="bug-browser" placeholder="e.g. Chrome 124, iPhone 15"/></div>
               <div class="fg"><label>Build / Version</label><input class="fc" id="bug-build" placeholder="e.g. v2.4.1"/></div>
             </div>
@@ -1706,14 +1707,20 @@ function populateProjectDropdown(selected) {
 }
 
 function populateBugAssignee() {
+  const deptSel = document.getElementById('bug-dept');
+  if (!deptSel) return;
+  // Populate dept dropdown with all unique depts
+  const depts = [...new Set(Object.values(USERS).map(u => u.dept))].filter(d => d !== 'Management');
+  deptSel.innerHTML = depts.map(d => `<option value="${d}"${d==='IT'?' selected':''}>${d}</option>`).join('');
+  onBugDeptChange();
+}
+function onBugDeptChange() {
+  const dept = document.getElementById('bug-dept').value;
   const sel = document.getElementById('bug-assignee');
   if (!sel) return;
-  const itMembers = Object.values(USERS).filter(u => u.dept === 'IT');
+  const members = Object.values(USERS).filter(u => u.dept === dept);
   sel.innerHTML = '<option value="">— Unassigned —</option>' +
-    itMembers.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
-  // Pre-select IT Mgr by default
-  const mgr = itMembers.find(u => u.isLead);
-  if (mgr) sel.value = mgr.name;
+    members.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
 }
 
 // ═══════════════ PROJECTS ═══════════════
