@@ -996,11 +996,14 @@ textarea.fc{resize:vertical;min-height:85px}
 
   <!-- Task Permissions -->
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
-    <div style="font-size:14px;font-weight:700;margin-bottom:4px">📋 Task / Item Permissions</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can view, create, edit and delete tasks.</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <div style="font-size:14px;font-weight:700">📋 Task / Item Permissions</div>
+      <span style="font-size:11px;color:#64748b;background:#f1f5f9;padding:3px 9px;border-radius:99px">🔒 System Admin is always locked</span>
+    </div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle each cell to grant or revoke access. Changes apply immediately.</div>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Role</th><th>Department</th><th>View Tasks</th><th>Create</th><th>Edit</th><th>Delete</th><th>Scope</th></tr></thead>
+        <thead><tr><th>Role</th><th>View</th><th>Create</th><th>Edit</th><th>Delete</th><th>Scope</th></tr></thead>
         <tbody id="perm-task-tbody"></tbody>
       </table>
     </div>
@@ -1009,7 +1012,7 @@ textarea.fc{resize:vertical;min-height:85px}
   <!-- Bug Permissions -->
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:4px">🐛 Bug Permissions</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can log, manage and close bugs.</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle to control who can log, fix, verify and close bugs.</div>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Role</th><th>Log Bug</th><th>Pick Up &amp; Fix</th><th>Verify Fix</th><th>Close Bug</th></tr></thead>
@@ -1021,7 +1024,7 @@ textarea.fc{resize:vertical;min-height:85px}
   <!-- Sprint & Project Permissions -->
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:4px">🚀 Sprint &amp; Project Permissions</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can manage sprints and projects.</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle to control sprint and project management access.</div>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Role</th><th>View Sprints</th><th>Create Sprint</th><th>Start / Close Sprint</th><th>View Projects</th><th>Create Project</th></tr></thead>
@@ -1033,7 +1036,7 @@ textarea.fc{resize:vertical;min-height:85px}
   <!-- Admin Permissions -->
   <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
     <div style="font-size:14px;font-weight:700;margin-bottom:4px">🔐 Admin &amp; System Permissions</div>
-    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls access to admin-only features.</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Toggle to control access to admin-only features.</div>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Role</th><th>User Management</th><th>Edit Permissions</th><th>View Reports</th><th>System Settings</th></tr></thead>
@@ -1782,6 +1785,64 @@ const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR'
 let items = [], serviceItems = [], hrItems = [], testCases = [], activities = [];
 let nextId = 20;
 let isOpen = false, openItemId = null;
+
+// ── Permission config (admin-editable) ──
+// Keys map to role groups shown on the Permissions page.
+// Each section has a set of boolean flags.
+const PERM_CONFIG = {
+  task: {
+    'admin':             {view:true,  create:true,  edit:true,  del:true,  scope:'All departments'},
+    'product_mgr':       {view:true,  create:true,  edit:true,  del:true,  scope:'All departments'},
+    'it_mgr':            {view:true,  create:true,  edit:true,  del:true,  scope:'All departments'},
+    'dept_mgr':          {view:true,  create:true,  edit:true,  del:true,  scope:'Own department'},
+    'lead':              {view:true,  create:true,  edit:true,  del:true,  scope:'Own department'},
+    'senior':            {view:true,  create:true,  edit:true,  del:false, scope:'Own department'},
+    'executive':         {view:true,  create:true,  edit:true,  del:false, scope:'Assigned to me'},
+    'designer':          {view:true,  create:true,  edit:true,  del:false, scope:'Assigned to me'},
+    'director':          {view:true,  create:false, edit:false, del:false, scope:'Read-only all'},
+  },
+  bug: {
+    'admin':             {log:true,  fix:true,  verify:true,  close:true},
+    'product_mgr':       {log:true,  fix:false, verify:true,  close:true},
+    'it_mgr':            {log:true,  fix:true,  verify:true,  close:true},
+    'product_lead_sr':   {log:true,  fix:false, verify:true,  close:false},
+    'it_lead_sr_exec':   {log:true,  fix:true,  verify:false, close:false},
+    'senior':            {log:true,  fix:false, verify:true,  close:false},
+    'executive':         {log:true,  fix:false, verify:false, close:false},
+    'designer':          {log:true,  fix:false, verify:false, close:false},
+    'dept_mgr':          {log:true,  fix:false, verify:false, close:true},
+  },
+  sprint: {
+    'admin':             {vSprint:true,  cSprint:true,  scSprint:true,  vProj:true,  cProj:true},
+    'product_mgr':       {vSprint:true,  cSprint:true,  scSprint:true,  vProj:true,  cProj:true},
+    'it_mgr':            {vSprint:true,  cSprint:true,  scSprint:true,  vProj:true,  cProj:true},
+    'product_lead_sr':   {vSprint:true,  cSprint:false, scSprint:false, vProj:true,  cProj:false},
+    'it_lead_sr':        {vSprint:true,  cSprint:false, scSprint:false, vProj:true,  cProj:false},
+    'senior_exec':       {vSprint:true,  cSprint:false, scSprint:false, vProj:true,  cProj:false},
+    'designer':          {vSprint:true,  cSprint:false, scSprint:false, vProj:true,  cProj:false},
+    'dept_mgr':          {vSprint:false, cSprint:false, scSprint:false, vProj:true,  cProj:false},
+    'director':          {vSprint:false, cSprint:false, scSprint:false, vProj:true,  cProj:false},
+  },
+  admin: {
+    'admin':             {userMgmt:true,  editPerm:true,  reports:true,  settings:true},
+    'product_mgr':       {userMgmt:false, editPerm:false, reports:true,  settings:false},
+    'it_mgr':            {userMgmt:false, editPerm:false, reports:true,  settings:false},
+    'dept_mgr':          {userMgmt:false, editPerm:false, reports:true,  settings:false},
+    'lead':              {userMgmt:false, editPerm:false, reports:true,  settings:false},
+    'executive':         {userMgmt:false, editPerm:false, reports:false, settings:false},
+    'designer':          {userMgmt:false, editPerm:false, reports:false, settings:false},
+    'director':          {userMgmt:false, editPerm:false, reports:true,  settings:false},
+  },
+};
+// Display labels for PERM_CONFIG keys
+const PERM_ROLE_LABELS = {
+  admin:'System Admin', product_mgr:'Product Manager', it_mgr:'IT Manager',
+  dept_mgr:'Dept Manager', lead:'Lead / Sr Lead', senior:'Senior Analyst',
+  executive:'Executive', designer:'Designer', director:'Director',
+  product_lead_sr:'Product Lead / Sr', it_lead_sr_exec:'IT Lead / Sr / Exec',
+  it_lead_sr:'IT Lead / Sr', senior_exec:'Senior / Exec',
+  product_lead_sr:'Product Lead / Sr',
+};
 
 // ── Seed data (used for first-time setup & demo mode) ──────────────────────
 const SEED_ITEMS = [
@@ -3114,75 +3175,90 @@ function renderUserTable() {
     </tr>`).join('');
 }
 
-function renderPermissions() {
-  const tick  = `<span style="color:#10b981;font-size:15px">✓</span>`;
-  const cross = `<span style="color:#cbd5e1;font-size:15px">—</span>`;
-  const part  = `<span style="color:#f59e0b;font-size:12px">Partial</span>`;
+// Toggle a permission cell and re-render
+function togglePerm(section, roleKey, field) {
+  if (!PERM_CONFIG[section] || !PERM_CONFIG[section][roleKey]) return;
+  // System Admin permissions are locked
+  if (roleKey === 'admin') return;
+  PERM_CONFIG[section][roleKey][field] = !PERM_CONFIG[section][roleKey][field];
+  // Persist to Firestore if available
+  if (!isDemoMode) {
+    db.collection('config').doc('permissions').set(JSON.parse(JSON.stringify(PERM_CONFIG))).catch(()=>{});
+  }
+  renderPermissions();
+}
 
+function _permToggle(section, roleKey, field, val, locked) {
+  const on = val;
+  const lockStyle = locked ? 'opacity:0.45;cursor:not-allowed' : 'cursor:pointer';
+  const onColor  = '#10b981';
+  const offColor = '#e2e8f0';
+  return `<label style="display:inline-flex;align-items:center;${lockStyle}" title="${locked?'Locked — cannot change':'Click to toggle'}" onclick="${locked?'':` togglePerm('${section}','${roleKey}','${field}')`}">
+    <span style="display:inline-block;width:36px;height:20px;border-radius:99px;background:${on?onColor:offColor};position:relative;transition:background .2s;border:1.5px solid ${on?onColor:'#cbd5e1'}">
+      <span style="position:absolute;top:2px;left:${on?'16px':'2px'};width:14px;height:14px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></span>
+    </span>
+  </label>`;
+}
+
+function renderPermissions() {
   // ── Task permissions ──
-  const taskRows = [
-    {role:'System Admin',    dept:'Admin',      view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
-    {role:'Product Manager', dept:'Product',    view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
-    {role:'IT Manager',      dept:'IT',         view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
-    {role:'Dept Manager',    dept:'Any',        view:part,   create:tick, edit:tick, del:tick,  scope:'Own department'},
-    {role:'Lead / Sr Lead',  dept:'Any',        view:part,   create:tick, edit:tick, del:tick,  scope:'Own department'},
-    {role:'Senior Analyst',  dept:'Any',        view:part,   create:tick, edit:tick, del:cross, scope:'Own department'},
-    {role:'Executive',       dept:'Any',        view:part,   create:tick, edit:tick, del:cross, scope:'Assigned to me'},
-    {role:'Designer',        dept:'Product',    view:part,   create:tick, edit:tick, del:cross, scope:'Assigned to me'},
-    {role:'Director',        dept:'Management', view:'All',  create:cross,edit:cross,del:cross, scope:'Read-only all'},
-  ];
-  document.getElementById('perm-task-tbody').innerHTML = taskRows.map(r=>`
-    <tr>
-      <td><strong>${r.role}</strong></td>
-      <td><span class="badge b-story" style="font-size:11px">${r.dept}</span></td>
-      <td>${r.view==='All'?tick:r.view==='Partial'?part:tick}</td>
-      <td>${r.create}</td><td>${r.edit}</td><td>${r.del}</td>
-      <td style="font-size:12px;color:#64748b">${r.scope}</td>
-    </tr>`).join('');
+  const taskCols = [{f:'create',l:'Create'},{f:'edit',l:'Edit'},{f:'del',l:'Delete'}];
+  const taskKeys = Object.keys(PERM_CONFIG.task);
+  document.getElementById('perm-task-tbody').innerHTML = taskKeys.map(rk => {
+    const p = PERM_CONFIG.task[rk];
+    const locked = rk === 'admin';
+    return `<tr>
+      <td><strong>${PERM_ROLE_LABELS[rk]||rk}</strong></td>
+      <td>${_permToggle('task',rk,'view',p.view,locked)}</td>
+      <td>${_permToggle('task',rk,'create',p.create,locked)}</td>
+      <td>${_permToggle('task',rk,'edit',p.edit,locked)}</td>
+      <td>${_permToggle('task',rk,'del',p.del,locked)}</td>
+      <td><input value="${p.scope||''}" onchange="PERM_CONFIG.task['${rk}'].scope=this.value" style="border:1px solid #e2e8f0;border-radius:6px;padding:3px 7px;font-size:12px;width:150px;color:#64748b" ${locked?'disabled':''}></td>
+    </tr>`;
+  }).join('');
 
   // ── Bug permissions ──
-  const bugRows = [
-    {role:'System Admin',     log:tick,  fix:tick,  verify:tick,  close:tick},
-    {role:'Product Manager',  log:tick,  fix:cross, verify:tick,  close:tick},
-    {role:'IT Manager',       log:tick,  fix:tick,  verify:tick,  close:tick},
-    {role:'Product Lead/Sr',  log:tick,  fix:cross, verify:tick,  close:cross},
-    {role:'IT Lead/Sr/Exec',  log:tick,  fix:tick,  verify:cross, close:cross},
-    {role:'Senior Analyst',   log:tick,  fix:cross, verify:tick,  close:cross},
-    {role:'Executive / Exec', log:tick,  fix:cross, verify:cross, close:cross},
-    {role:'Designer',         log:tick,  fix:cross, verify:cross, close:cross},
-    {role:'Dept Manager',     log:tick,  fix:cross, verify:cross, close:tick},
-  ];
-  document.getElementById('perm-bug-tbody').innerHTML = bugRows.map(r=>`
-    <tr><td><strong>${r.role}</strong></td><td>${r.log}</td><td>${r.fix}</td><td>${r.verify}</td><td>${r.close}</td></tr>`).join('');
+  const bugKeys = Object.keys(PERM_CONFIG.bug);
+  document.getElementById('perm-bug-tbody').innerHTML = bugKeys.map(rk => {
+    const p = PERM_CONFIG.bug[rk];
+    const locked = rk === 'admin';
+    return `<tr>
+      <td><strong>${PERM_ROLE_LABELS[rk]||rk}</strong></td>
+      <td>${_permToggle('bug',rk,'log',p.log,locked)}</td>
+      <td>${_permToggle('bug',rk,'fix',p.fix,locked)}</td>
+      <td>${_permToggle('bug',rk,'verify',p.verify,locked)}</td>
+      <td>${_permToggle('bug',rk,'close',p.close,locked)}</td>
+    </tr>`;
+  }).join('');
 
-  // ── Sprint & project permissions ──
-  const sprintRows = [
-    {role:'System Admin',     vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
-    {role:'Product Manager',  vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
-    {role:'IT Manager',       vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
-    {role:'Product Lead/Sr',  vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-    {role:'IT Lead/Sr',       vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-    {role:'Senior / Exec',    vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-    {role:'Designer',         vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-    {role:'Dept Manager',     vSprint:cross,cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-    {role:'Director',         vSprint:cross,cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
-  ];
-  document.getElementById('perm-sprint-tbody').innerHTML = sprintRows.map(r=>`
-    <tr><td><strong>${r.role}</strong></td><td>${r.vSprint}</td><td>${r.cSprint}</td><td>${r.scSprint}</td><td>${r.vProj}</td><td>${r.cProj}</td></tr>`).join('');
+  // ── Sprint & Project permissions ──
+  const sprintKeys = Object.keys(PERM_CONFIG.sprint);
+  document.getElementById('perm-sprint-tbody').innerHTML = sprintKeys.map(rk => {
+    const p = PERM_CONFIG.sprint[rk];
+    const locked = rk === 'admin';
+    return `<tr>
+      <td><strong>${PERM_ROLE_LABELS[rk]||rk}</strong></td>
+      <td>${_permToggle('sprint',rk,'vSprint',p.vSprint,locked)}</td>
+      <td>${_permToggle('sprint',rk,'cSprint',p.cSprint,locked)}</td>
+      <td>${_permToggle('sprint',rk,'scSprint',p.scSprint,locked)}</td>
+      <td>${_permToggle('sprint',rk,'vProj',p.vProj,locked)}</td>
+      <td>${_permToggle('sprint',rk,'cProj',p.cProj,locked)}</td>
+    </tr>`;
+  }).join('');
 
-  // ── Admin permissions ──
-  const adminRows = [
-    {role:'System Admin',    userMgmt:tick,  editPerm:tick,  reports:tick,  settings:tick},
-    {role:'Product Manager', userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
-    {role:'IT Manager',      userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
-    {role:'Dept Manager',    userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
-    {role:'Lead / Senior',   userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
-    {role:'Executive',       userMgmt:cross, editPerm:cross, reports:cross, settings:cross},
-    {role:'Designer',        userMgmt:cross, editPerm:cross, reports:cross, settings:cross},
-    {role:'Director',        userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
-  ];
-  document.getElementById('perm-admin-tbody').innerHTML = adminRows.map(r=>`
-    <tr><td><strong>${r.role}</strong></td><td>${r.userMgmt}</td><td>${r.editPerm}</td><td>${r.reports}</td><td>${r.settings}</td></tr>`).join('');
+  // ── Admin & system permissions ──
+  const adminKeys = Object.keys(PERM_CONFIG.admin);
+  document.getElementById('perm-admin-tbody').innerHTML = adminKeys.map(rk => {
+    const p = PERM_CONFIG.admin[rk];
+    const locked = rk === 'admin';
+    return `<tr>
+      <td><strong>${PERM_ROLE_LABELS[rk]||rk}</strong></td>
+      <td>${_permToggle('admin',rk,'userMgmt',p.userMgmt,locked)}</td>
+      <td>${_permToggle('admin',rk,'editPerm',p.editPerm,locked)}</td>
+      <td>${_permToggle('admin',rk,'reports',p.reports,locked)}</td>
+      <td>${_permToggle('admin',rk,'settings',p.settings,locked)}</td>
+    </tr>`;
+  }).join('');
 }
 
 function openAddUserModal() {
