@@ -1021,7 +1021,14 @@ textarea.fc{resize:vertical;min-height:85px}
       <div>
         <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Color</label>
         <div style="display:flex;gap:8px">
-          ${['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6'].map(c=>`<div onclick="selectProjColor('${c}')" style="width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent" class="proj-color-opt" data-color="${c}"></div>`).join('')}
+          <div onclick="selectProjColor('#6366f1')" class="proj-color-opt" data-color="#6366f1" style="width:24px;height:24px;border-radius:50%;background:#6366f1;cursor:pointer;border:3px solid #6366f1;outline:2px solid #fff;outline-offset:-4px"></div>
+          <div onclick="selectProjColor('#10b981')" class="proj-color-opt" data-color="#10b981" style="width:24px;height:24px;border-radius:50%;background:#10b981;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#f59e0b')" class="proj-color-opt" data-color="#f59e0b" style="width:24px;height:24px;border-radius:50%;background:#f59e0b;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#ef4444')" class="proj-color-opt" data-color="#ef4444" style="width:24px;height:24px;border-radius:50%;background:#ef4444;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#3b82f6')" class="proj-color-opt" data-color="#3b82f6" style="width:24px;height:24px;border-radius:50%;background:#3b82f6;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#8b5cf6')" class="proj-color-opt" data-color="#8b5cf6" style="width:24px;height:24px;border-radius:50%;background:#8b5cf6;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#ec4899')" class="proj-color-opt" data-color="#ec4899" style="width:24px;height:24px;border-radius:50%;background:#ec4899;cursor:pointer;border:2px solid transparent"></div>
+          <div onclick="selectProjColor('#14b8a6')" class="proj-color-opt" data-color="#14b8a6" style="width:24px;height:24px;border-radius:50%;background:#14b8a6;cursor:pointer;border:2px solid transparent"></div>
         </div>
         <input type="hidden" id="proj-color" value="#6366f1"/>
       </div>
