@@ -990,6 +990,59 @@ textarea.fc{resize:vertical;min-height:85px}
   </div>
 </div>
 
+<!-- ═══ PERMISSIONS ═══ -->
+<div id="page-permissions" class="page">
+  <div class="sec-header"><h3>Permissions Matrix</h3><p>Role-based access control across the system.</p></div>
+
+  <!-- Task Permissions -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">📋 Task / Item Permissions</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can view, create, edit and delete tasks.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>Department</th><th>View Tasks</th><th>Create</th><th>Edit</th><th>Delete</th><th>Scope</th></tr></thead>
+        <tbody id="perm-task-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bug Permissions -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">🐛 Bug Permissions</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can log, manage and close bugs.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>Log Bug</th><th>Pick Up &amp; Fix</th><th>Verify Fix</th><th>Close Bug</th></tr></thead>
+        <tbody id="perm-bug-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sprint & Project Permissions -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">🚀 Sprint &amp; Project Permissions</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls who can manage sprints and projects.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>View Sprints</th><th>Create Sprint</th><th>Start / Close Sprint</th><th>View Projects</th><th>Create Project</th></tr></thead>
+        <tbody id="perm-sprint-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Admin Permissions -->
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:20px">
+    <div style="font-size:14px;font-weight:700;margin-bottom:4px">🔐 Admin &amp; System Permissions</div>
+    <div style="font-size:12px;color:#64748b;margin-bottom:14px">Controls access to admin-only features.</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Role</th><th>User Management</th><th>Edit Permissions</th><th>View Reports</th><th>System Settings</th></tr></thead>
+        <tbody id="perm-admin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
       <!-- ═══ SETTINGS (Admin) ═══ -->
       <div id="page-settings" class="page">
         <div class="sec-header"><h3 style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg> Admin Settings</h3><p>Manage users, roles, departments and system configuration.</p></div>
@@ -1556,7 +1609,7 @@ const CREDENTIALS = {
 
 const USERS = {
   admin: {id:'admin', name:'System Admin', role:'Administrator', dept:'Admin', isLead:true, color:'#1e293b',
-    nav:['admin-dashboard','user-management','settings','reports','team']},
+    nav:['admin-dashboard','user-management','permissions','items','kanban','projects','calendar','bugs','requests','backlog','reports','team','settings']},
   // ── PRODUCT DEPT ──────────────────────────────────────────────────────────
   product_mgr:{id:'product_mgr',name:'Wei Xian Loh',    role:'Product Manager',      dept:'Product',  isLead:true,  color:'#8b5cf6',
     nav:['dashboard','projects','calendar','requests','backlog','sprints','items','kanban','test-plans','bugs','reports','team','settings']},
@@ -1656,6 +1709,7 @@ const USERS = {
 const NAV_META = {
   'admin-dashboard':   {label:'Admin Dashboard', icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z"/></svg>`, section:'Admin'},
   'user-management':   {label:'User Management', icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>`, section:'Admin'},
+  'permissions':       {label:'Permissions', icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"/></svg>`, section:'Admin'},
   'dashboard':         {label:'Dashboard',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>`, section:'Overview'},
   'exec-dashboard':    {label:'Executive Dashboard', icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>`, section:'Overview'},
   'my-dashboard':      {label:'My Dashboard',        icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>`, section:'Overview'},
@@ -2131,6 +2185,7 @@ function navigate(p){
   if(p==='test-plans')renderTestCases();
   if(p==='admin-dashboard') renderAdminDashboard();
   if(p==='user-management') renderUserTable();
+  if(p==='permissions') renderPermissions();
   closePanel();
 }
 function updateTopbarBtn(){
@@ -2321,7 +2376,7 @@ function renderItemsTable(){
   if(currentTypeFilter)data=data.filter(i=>i.type===currentTypeFilter);
   const q=document.getElementById('search-input').value.trim().toLowerCase();
   if(q)data=data.filter(i=>i.title.toLowerCase().includes(q)||i.id.toLowerCase().includes(q));
-  if(currentUser&&!['product_mgr','it_mgr'].includes(currentUser.id)){
+  if(currentUser&&!['product_mgr','it_mgr','admin'].includes(currentUser.id)){
     if(['it_lead','it_snr','it'].includes(currentUser.id))data=data.filter(i=>i.dept==='IT');
     else if(['finance_mgr','finance_lead','finance_snr','finance'].includes(currentUser.id))data=data.filter(i=>i.dept==='Finance');
     else if(['hr_mgr','hr_lead','hr_snr','hr'].includes(currentUser.id))data=data.filter(i=>i.dept==='HR');
@@ -2329,6 +2384,7 @@ function renderItemsTable(){
     else if(['sales_mgr','sales_lead','sales_snr','sales'].includes(currentUser.id))data=data.filter(i=>i.dept==='Sales');
     else if(['mkt_mgr','mkt_lead','mkt_snr','mkt'].includes(currentUser.id))data=data.filter(i=>i.dept==='Marketing');
     else if(['cs_mgr','cs_lead','cs_snr','cs'].includes(currentUser.id))data=data.filter(i=>i.dept==='CS');
+    else if(['legal_mgr','legal_lead','legal_snr','legal'].includes(currentUser.id))data=data.filter(i=>i.dept==='Legal');
     else if(!currentUser.isLead)data=data.filter(i=>i.assignee===currentUser.name);
   }
   data.sort((a,b)=>{let va=a[sortKey]||'',vb=b[sortKey]||'';return va<vb?-sortDir:va>vb?sortDir:0;});
@@ -2399,7 +2455,7 @@ function kanbanColHTML(col, items){
 function renderKanban(){
   const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
   let data=[...items];
-  if(currentUser&&!['product_mgr','it_mgr'].includes(currentUser.id)){
+  if(currentUser&&!['product_mgr','it_mgr','admin'].includes(currentUser.id)){
     if(!currentUser.isLead)data=data.filter(i=>i.assignee===currentUser.name);
   }
   document.getElementById('kanban-board').innerHTML=cols.map(col=>kanbanColHTML(col,data.filter(i=>i.status===col.k))).join('');
@@ -2814,7 +2870,9 @@ function openPanel(id){
   if(!item)return;
   document.getElementById('panel-id').textContent=item.id;
   document.getElementById('panel-title').textContent=item.title;
-  const canEdit=currentUser&&currentUser.dept!=='Management';
+  const isAdmin=currentUser&&currentUser.id==='admin';
+  const canEdit=currentUser&&(isAdmin||currentUser.dept!=='Management');
+  const canDelete=isAdmin||currentUser.isLead;
   const workflowBtns = getWorkflowActions(item);
 
   // Workflow stage progress bar
@@ -2882,6 +2940,11 @@ function openPanel(id){
       <input class="ci" id="ci-input" placeholder="Add a comment…" onkeydown="if(event.key==='Enter')addComment('${id}')"/>
       <button class="btn btn-primary btn-sm" onclick="addComment('${id}')">Post</button>
     </div>`:''}`;
+  // Show/hide edit & delete buttons based on permissions
+  const editBtn = document.getElementById('panel-edit-btn');
+  const deleteBtn = document.getElementById('panel-delete-btn');
+  if(editBtn) editBtn.style.display = canEdit ? '' : 'none';
+  if(deleteBtn) deleteBtn.style.display = canDelete ? '' : 'none';
   document.getElementById('overlay').classList.add('open');
   document.getElementById('panel').classList.add('open');
 }
@@ -3049,6 +3112,77 @@ function renderUserTable() {
         ${u.id!=='admin'?`<button class="btn btn-sm" style="background:#fee2e2;color:#ef4444;border:none;font-size:11px" onclick="resetPassword('${u.id}')">🔑 Reset</button>`:''}
       </div></td>
     </tr>`).join('');
+}
+
+function renderPermissions() {
+  const tick  = `<span style="color:#10b981;font-size:15px">✓</span>`;
+  const cross = `<span style="color:#cbd5e1;font-size:15px">—</span>`;
+  const part  = `<span style="color:#f59e0b;font-size:12px">Partial</span>`;
+
+  // ── Task permissions ──
+  const taskRows = [
+    {role:'System Admin',    dept:'Admin',      view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
+    {role:'Product Manager', dept:'Product',    view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
+    {role:'IT Manager',      dept:'IT',         view:'All',  create:tick, edit:tick, del:tick,  scope:'All departments'},
+    {role:'Dept Manager',    dept:'Any',        view:part,   create:tick, edit:tick, del:tick,  scope:'Own department'},
+    {role:'Lead / Sr Lead',  dept:'Any',        view:part,   create:tick, edit:tick, del:tick,  scope:'Own department'},
+    {role:'Senior Analyst',  dept:'Any',        view:part,   create:tick, edit:tick, del:cross, scope:'Own department'},
+    {role:'Executive',       dept:'Any',        view:part,   create:tick, edit:tick, del:cross, scope:'Assigned to me'},
+    {role:'Designer',        dept:'Product',    view:part,   create:tick, edit:tick, del:cross, scope:'Assigned to me'},
+    {role:'Director',        dept:'Management', view:'All',  create:cross,edit:cross,del:cross, scope:'Read-only all'},
+  ];
+  document.getElementById('perm-task-tbody').innerHTML = taskRows.map(r=>`
+    <tr>
+      <td><strong>${r.role}</strong></td>
+      <td><span class="badge b-story" style="font-size:11px">${r.dept}</span></td>
+      <td>${r.view==='All'?tick:r.view==='Partial'?part:tick}</td>
+      <td>${r.create}</td><td>${r.edit}</td><td>${r.del}</td>
+      <td style="font-size:12px;color:#64748b">${r.scope}</td>
+    </tr>`).join('');
+
+  // ── Bug permissions ──
+  const bugRows = [
+    {role:'System Admin',     log:tick,  fix:tick,  verify:tick,  close:tick},
+    {role:'Product Manager',  log:tick,  fix:cross, verify:tick,  close:tick},
+    {role:'IT Manager',       log:tick,  fix:tick,  verify:tick,  close:tick},
+    {role:'Product Lead/Sr',  log:tick,  fix:cross, verify:tick,  close:cross},
+    {role:'IT Lead/Sr/Exec',  log:tick,  fix:tick,  verify:cross, close:cross},
+    {role:'Senior Analyst',   log:tick,  fix:cross, verify:tick,  close:cross},
+    {role:'Executive / Exec', log:tick,  fix:cross, verify:cross, close:cross},
+    {role:'Designer',         log:tick,  fix:cross, verify:cross, close:cross},
+    {role:'Dept Manager',     log:tick,  fix:cross, verify:cross, close:tick},
+  ];
+  document.getElementById('perm-bug-tbody').innerHTML = bugRows.map(r=>`
+    <tr><td><strong>${r.role}</strong></td><td>${r.log}</td><td>${r.fix}</td><td>${r.verify}</td><td>${r.close}</td></tr>`).join('');
+
+  // ── Sprint & project permissions ──
+  const sprintRows = [
+    {role:'System Admin',     vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
+    {role:'Product Manager',  vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
+    {role:'IT Manager',       vSprint:tick, cSprint:tick, scSprint:tick, vProj:tick, cProj:tick},
+    {role:'Product Lead/Sr',  vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+    {role:'IT Lead/Sr',       vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+    {role:'Senior / Exec',    vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+    {role:'Designer',         vSprint:tick, cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+    {role:'Dept Manager',     vSprint:cross,cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+    {role:'Director',         vSprint:cross,cSprint:cross,scSprint:cross,vProj:tick, cProj:cross},
+  ];
+  document.getElementById('perm-sprint-tbody').innerHTML = sprintRows.map(r=>`
+    <tr><td><strong>${r.role}</strong></td><td>${r.vSprint}</td><td>${r.cSprint}</td><td>${r.scSprint}</td><td>${r.vProj}</td><td>${r.cProj}</td></tr>`).join('');
+
+  // ── Admin permissions ──
+  const adminRows = [
+    {role:'System Admin',    userMgmt:tick,  editPerm:tick,  reports:tick,  settings:tick},
+    {role:'Product Manager', userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
+    {role:'IT Manager',      userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
+    {role:'Dept Manager',    userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
+    {role:'Lead / Senior',   userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
+    {role:'Executive',       userMgmt:cross, editPerm:cross, reports:cross, settings:cross},
+    {role:'Designer',        userMgmt:cross, editPerm:cross, reports:cross, settings:cross},
+    {role:'Director',        userMgmt:cross, editPerm:cross, reports:tick,  settings:cross},
+  ];
+  document.getElementById('perm-admin-tbody').innerHTML = adminRows.map(r=>`
+    <tr><td><strong>${r.role}</strong></td><td>${r.userMgmt}</td><td>${r.editPerm}</td><td>${r.reports}</td><td>${r.settings}</td></tr>`).join('');
 }
 
 function openAddUserModal() {
