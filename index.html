@@ -1124,6 +1124,10 @@ textarea.fc{resize:vertical;min-height:85px}
           </select>
         </div>
         <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Estimated Hours</label>
+          <input id="modal-item-estimate" type="number" min="0" step="0.5" placeholder="e.g. 4" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+        </div>
+        <div>
           <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Due Date</label>
           <input id="modal-item-due" type="date" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
         </div>
@@ -1988,6 +1992,7 @@ function openItemModal(existingItem) {
     document.getElementById('modal-item-status').value = existingItem.status || 'open';
     document.getElementById('modal-item-sprint').value = existingItem.sprint || 'Backlog';
     document.getElementById('modal-item-points').value = existingItem.points || '3';
+    document.getElementById('modal-item-estimate').value = existingItem.estimate || '';
     document.getElementById('modal-item-dept').value = existingItem.dept || currentUser.dept;
     document.getElementById('modal-item-due').value = existingItem.dueDate || '';
     document.getElementById('modal-item-desc').value = existingItem.desc || '';
@@ -2022,6 +2027,7 @@ async function saveModalItem(e) {
   const sprint = document.getElementById('modal-item-sprint').value;
   const assignee = document.getElementById('modal-item-assignee').value;
   const points = parseInt(document.getElementById('modal-item-points').value);
+  const estimate = parseFloat(document.getElementById('modal-item-estimate').value) || 0;
   const dept = document.getElementById('modal-item-dept').value;
   const desc = document.getElementById('modal-item-desc').value.trim();
   const dueDate = document.getElementById('modal-item-due').value;
@@ -2033,7 +2039,7 @@ async function saveModalItem(e) {
 
   if (editId) {
     // Edit existing
-    await dbSave('items', editId, {title, type, priority, status, sprint, assignee, points, dept, desc, dueDate, projectId, projectName});
+    await dbSave('items', editId, {title, type, priority, status, sprint, assignee, points, estimate, dept, desc, dueDate, projectId, projectName});
     await dbAddActivity(`${currentUser.name} updated item <b>${editId}</b>`, '#6366f1');
     showToast('Item updated!');
     const updatedItem = items.find(i=>i.id===editId);
@@ -2045,10 +2051,10 @@ async function saveModalItem(e) {
     const idNum = String(nextId).padStart(3,'0');
     const id = 'FT-' + idNum; nextId++;
     const newItem = {
-      id, title, type, priority, status, sprint, assignee, points, dept, desc,
+      id, title, type, priority, status, sprint, assignee, points, estimate, dept, desc,
       dueDate, projectId, projectName,
-      created: new Date().toISOString().slice(0,10),
-      comments: [],
+      created: new Date().toLocaleString('en-MY',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',',''),
+      comments: [], timeLog: [],
       approvalStatus: ['request','feature'].includes(type) ? 'pending' : null,
       ts: Date.now()
     };
@@ -2488,6 +2494,41 @@ function openPanel(id){
       ${item.amount?`<div class="pf"><div class="pfl">Amount</div><span style="font-size:14px;font-weight:700;color:#10b981">${item.amount}</span></div>`:''}
       <div class="pf"><div class="pfl">Created</div><span style="font-size:13px">${item.created||'—'}</span></div>
     </div>
+    ${(()=>{
+      const logs = item.timeLog||[];
+      const totalLogged = logs.reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
+      const estimate = parseFloat(item.estimate)||0;
+      const pct = estimate>0?Math.min(100,Math.round((totalLogged/estimate)*100)):0;
+      const barColor = pct>=100?'#ef4444':pct>=75?'#f59e0b':'#10b981';
+      return `<div style="margin-bottom:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#64748b">⏱ Time Tracking</div>
+          <div style="font-size:12px;color:#64748b">${totalLogged}h logged${estimate?` / ${estimate}h est.`:''}</div>
+        </div>
+        ${estimate>0?`<div style="background:#e2e8f0;border-radius:99px;height:7px;margin-bottom:8px">
+          <div style="width:${pct}%;background:${barColor};height:7px;border-radius:99px;transition:width .3s"></div>
+        </div>`:''}
+        <div id="time-log-list" style="margin-bottom:8px">
+          ${logs.length?logs.map(l=>`
+            <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid #f1f5f9">
+              <div class="av" style="background:${A_COLORS[l.user]||'#6366f1'};width:24px;height:24px;font-size:9px;flex-shrink:0">${ini(l.user)}</div>
+              <div style="flex:1;min-width:0">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <span style="font-size:12px;font-weight:600">${l.user}</span>
+                  <span style="font-size:12px;font-weight:700;color:#6366f1">${l.hours}h</span>
+                </div>
+                ${l.note?`<div style="font-size:12px;color:#64748b;margin-top:2px">${l.note}</div>`:''}
+                <div style="font-size:11px;color:#94a3b8;margin-top:2px">${l.date}</div>
+              </div>
+            </div>`).join(''):'<div style="font-size:12px;color:#94a3b8;padding:4px 0">No time logged yet.</div>'}
+        </div>
+        ${canEdit?`<div style="display:flex;gap:6px;align-items:center">
+          <input type="number" id="tl-hours" min="0.5" step="0.5" placeholder="hrs" style="width:68px;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+          <input type="text" id="tl-note" placeholder="What did you work on?" style="flex:1;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'" onkeydown="if(event.key==='Enter')logTime('${id}')"/>
+          <button class="btn btn-primary btn-sm" onclick="logTime('${id}')">Log</button>
+        </div>`:''}
+      </div>`;
+    })()}
     ${canEdit?`<div class="pf" style="margin-bottom:14px">
       <div class="pfl">Change Status</div>
       <div class="flex g2" style="flex-wrap:wrap;margin-top:4px">
@@ -2514,6 +2555,26 @@ function openPanel(id){
 }
 function closePanel(){isOpen=false;openItemId=null;document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open');}
 function editPanelItem(){const item=items.find(i=>i.id===openItemId);if(item){closePanel();openItemModal(item);}}
+
+async function logTime(id) {
+  const hoursEl = document.getElementById('tl-hours');
+  const noteEl = document.getElementById('tl-note');
+  const hours = parseFloat(hoursEl.value);
+  if (!hours || hours <= 0) { showToast('Enter valid hours'); return; }
+  const note = noteEl.value.trim();
+  const now = new Date();
+  const dateStr = now.toLocaleString('en-MY',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).replace(',','');
+  const entry = { user: currentUser.name, hours, note, date: dateStr };
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+  if (!item.timeLog) item.timeLog = [];
+  item.timeLog.push(entry);
+  await dbSave('items', id, { timeLog: item.timeLog });
+  await dbAddActivity(`${currentUser.name} logged <b>${hours}h</b> on ${id}${note?' — '+note:''}`, '#6366f1');
+  hoursEl.value = ''; noteEl.value = '';
+  showToast(`✅ Logged ${hours}h`);
+  openPanel(id);
+}
 function deletePanelItem(){if(openItemId)deleteItem(openItemId);}
 
 async function changeStatus(id,status){
