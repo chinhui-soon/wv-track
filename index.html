@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>WV Track — Project Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#f5f6fa;--surface:#fff;--surface2:#f0f2f8;--border:#e2e8f0;--text:#1a202c;--text-muted:#718096;--accent:#6366f1;--accent-hover:#4f46e5;--accent-light:#eef2ff;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6;--sw:252px;--r:10px;--sh:0 1px 3px rgba(0,0,0,.08),0 1px 8px rgba(0,0,0,.05);--shl:0 10px 40px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{cursor:pointer;font-family:inherit}input,textarea,select{font-family:inherit}
+
+/* LOGIN SCREEN */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+#login-screen.hidden{display:none}
+.login-box{background:#fff;border-radius:20px;padding:40px;max-width:900px;width:100%;box-shadow:0 25px 80px rgba(0,0,0,.25)}
+.login-title{font-size:26px;font-weight:800;text-align:center;margin-bottom:6px;color:#1a202c}
+.login-sub{font-size:14px;color:#718096;text-align:center;margin-bottom:28px}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.role-card{border:2px solid #e2e8f0;border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.role-card:hover{border-color:var(--accent);background:#eef2ff;transform:translateY(-2px);box-shadow:0 4px 16px rgba(99,102,241,.15)}
+.role-avatar{width:48px;height:48px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.role-name{font-size:13px;font-weight:700;color:#1a202c}
+.role-title{font-size:11px;color:#718096;margin-top:2px}
+.role-dept{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-top:6px;display:inline-block}
+
+/* APP SHELL */
+#app{display:none;min-height:100vh}
+#app.visible{display:flex}
+#sidebar{width:var(--sw);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:18px 18px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700;flex-shrink:0}
+.logo-text{font-weight:800;font-size:15px;letter-spacing:-.3px;color:#1a202c}
+.logo-text span{color:var(--accent)}
+.sidebar-nav{flex:1;padding:10px 8px}
+.nav-section-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);padding:10px 10px 4px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;transition:all .15s;margin-bottom:1px;white-space:nowrap}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent);font-weight:600}
+.nav-item .ni{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center}
+.nav-badge.red{background:#ef4444}.nav-badge.amber{background:#f59e0b}.nav-badge.blue{background:#3b82f6}
+.sidebar-user{padding:12px 14px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.su-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.su-info{flex:1;overflow:hidden;min-width:0}
+.su-name{font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.su-role{font-size:10px;color:var(--text-muted)}
+.su-switch{font-size:11px;color:var(--accent);cursor:pointer;font-weight:600;white-space:nowrap;flex-shrink:0}
+.su-switch:hover{text-decoration:underline}
+
+/* MAIN */
+#main{margin-left:var(--sw);flex:1;display:flex;flex-direction:column;min-height:100vh}
+#topbar{background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;padding:0 24px;height:58px;position:sticky;top:0;z-index:90;flex-shrink:0}
+#topbar h2{font-size:16px;font-weight:700;flex:1}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;min-width:200px}
+.topbar-search input{border:none;background:none;outline:none;font-size:13px;color:var(--text);width:100%}
+.topbar-search input::placeholder{color:var(--text-muted)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;border:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover)}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-success{background:#10b981;color:#fff}.btn-success:hover{background:#059669}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.notif-btn{width:34px;height:34px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;position:relative}
+.notif-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:#ef4444;border-radius:50%;border:1.5px solid #fff}
+
+/* CONTENT */
+#content{flex:1;padding:22px;overflow-y:auto}
+.page{display:none}.page.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:flex;align-items:flex-start;gap:12px;box-shadow:var(--sh)}
+.stat-icon{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.si-purple{background:#eef2ff}.si-red{background:#fef2f2}.si-amber{background:#fffbeb}.si-green{background:#f0fdf4}.si-blue{background:#eff6ff}.si-pink{background:#fdf4ff}
+.stat-val{font-size:26px;font-weight:700;line-height:1}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:3px}
+.stat-delta{font-size:11px;margin-top:5px}.du{color:var(--success)}.dd{color:var(--danger)}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh)}
+.card-header{padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:700}
+.card-body{padding:14px 18px}
+.dash-grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+.dash-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:18px}
+
+/* ACTIVITY */
+.activity-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+
+/* PRIORITY BARS */
+.priority-bars{display:flex;flex-direction:column;gap:9px}
+.pbar-row{display:flex;align-items:center;gap:10px}
+.pbar-label{width:65px;font-size:12px;color:var(--text-muted)}
+.pbar-track{flex:1;height:7px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:4px}
+.pbar-count{font-size:12px;color:var(--text-muted);width:20px;text-align:right}
+
+/* TABLE */
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;transition:all .15s}
+.filter-btn.active,.filter-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border);background:var(--surface2);white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:var(--text)}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface2)}
+td{padding:11px 14px;font-size:13px;vertical-align:middle}
+.td-title{font-weight:600;max-width:280px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.td-id{font-size:11px;color:var(--text-muted);font-weight:600;font-family:monospace}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap}
+.b-open{background:#eff6ff;color:#3b82f6}.b-in-progress{background:#fef3c7;color:#d97706}
+.b-review{background:#f3e8ff;color:#9333ea}.b-done{background:#f0fdf4;color:#16a34a}
+.b-closed{background:#f1f5f9;color:#64748b}.b-blocked{background:#fef2f2;color:#dc2626}
+.b-critical{background:#fef2f2;color:#dc2626}.b-high{background:#fff7ed;color:#ea580c}
+.b-medium{background:#fefce8;color:#ca8a04}.b-low{background:#f0fdf4;color:#16a34a}
+.b-bug{background:#fef2f2;color:#ef4444}.b-request{background:#eff6ff;color:#3b82f6}
+.b-feature{background:#f3e8ff;color:#9333ea}.b-task{background:#f0fdf4;color:#10b981}
+.b-story{background:#fdf4ff;color:#a855f7}.b-epic{background:#fef3c7;color:#d97706}
+.b-incident{background:#fef2f2;color:#dc2626}.b-service{background:#eff6ff;color:#3b82f6}
+.b-pass{background:#f0fdf4;color:#16a34a}.b-fail{background:#fef2f2;color:#dc2626}.b-blocked2{background:#fef3c7;color:#d97706}
+.b-approved{background:#f0fdf4;color:#16a34a}.b-rejected{background:#fef2f2;color:#dc2626}.b-pending{background:#fef3c7;color:#d97706}
+
+/* KANBAN */
+.kanban-wrap{overflow-x:auto;padding-bottom:8px}
+.kanban-board{display:grid;grid-template-columns:repeat(4,280px);gap:14px;align-items:start;min-width:fit-content}
+.kanban-col{background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);min-height:200px}
+.kanban-col-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.col-dot{width:9px;height:9px;border-radius:50%}
+.col-title{font-size:13px;font-weight:700;flex:1}
+.col-count{background:var(--border);color:var(--text-muted);font-size:11px;font-weight:700;padding:1px 6px;border-radius:10px}
+.kanban-items{display:flex;flex-direction:column;gap:8px}
+.kanban-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:11px;cursor:pointer;transition:all .15s;box-shadow:var(--sh)}
+.kanban-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.1);transform:translateY(-1px)}
+.kc-title{font-size:12.5px;font-weight:600;margin-bottom:7px;line-height:1.4}
+.kc-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.kc-id{font-size:10px;color:var(--text-muted);font-weight:600;font-family:monospace}
+.av{width:22px;height:22px;border-radius:50%;font-size:10px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+label{font-size:12px;font-weight:600;color:var(--text-muted)}
+.fc{background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--text);outline:none;transition:border-color .15s;width:100%}
+.fc:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+textarea.fc{resize:vertical;min-height:85px}
+.form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+.sec-header{margin-bottom:18px}
+.sec-header h3{font-size:18px;font-weight:700}
+.sec-header p{font-size:13px;color:var(--text-muted);margin-top:3px}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:22px;box-shadow:var(--sh);max-width:760px}
+
+/* BACKLOG */
+.backlog-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+.backlog-item:hover{background:var(--surface2)}
+.backlog-item:last-child{border-bottom:none}
+.bi-handle{color:var(--text-muted);font-size:14px;cursor:grab}
+.bi-expand{font-size:12px;color:var(--text-muted);cursor:pointer;width:16px;text-align:center}
+.bi-type{font-size:14px;width:20px;text-align:center}
+.bi-title{flex:1;font-size:13px;font-weight:600}
+.bi-pts{font-size:11px;font-weight:700;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--text-muted)}
+.bi-children{padding-left:32px;border-left:2px solid var(--border);margin-left:18px}
+.sprint-header{background:var(--accent-light);border:1px solid #c7d2fe;border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px;cursor:pointer}
+.sprint-header-title{font-size:13px;font-weight:700;color:var(--accent);flex:1}
+.sprint-header-meta{font-size:12px;color:var(--text-muted)}
+.unassigned-header{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+
+/* SPRINT BOARD */
+.sprint-info-bar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;gap:20px;box-shadow:var(--sh)}
+.sib-item{text-align:center}
+.sib-val{font-size:20px;font-weight:700}
+.sib-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+.sib-divider{width:1px;height:36px;background:var(--border)}
+
+/* TEST PLANS */
+.test-case-row{display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.test-case-row:hover{background:var(--surface2)}
+.tc-result{width:80px}
+.tc-btn{padding:3px 8px;border-radius:5px;font-size:11px;font-weight:700;border:none;cursor:pointer;transition:all .15s}
+.tc-pass{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}.tc-pass:hover{background:#16a34a;color:#fff}
+.tc-fail{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}.tc-fail:hover{background:#dc2626;color:#fff}
+.tc-blocked{background:#fef3c7;color:#d97706;border:1px solid #fde68a}.tc-blocked:hover{background:#d97706;color:#fff}
+
+/* PIPELINE */
+.pipeline-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border)}
+.pipeline-row:hover{background:var(--surface2)}
+.pl-status{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.pl-name{flex:1;font-size:13px;font-weight:600}
+.pl-branch{font-size:12px;color:var(--text-muted);font-family:monospace}
+.pl-time{font-size:12px;color:var(--text-muted)}
+.pl-trigger{font-size:11px;color:var(--text-muted)}
+.pl-spinning{animation:spin 1s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+/* APPROVALS */
+.approval-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--sh)}
+.approval-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px}
+.approval-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.approval-actions{display:flex;gap:8px}
+
+/* MY WORK */
+.my-work-section{margin-bottom:24px}
+.mws-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+
+/* PANEL */
+#overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:200;backdrop-filter:blur(2px)}
+#overlay.open{display:block}
+#panel{position:fixed;right:0;top:0;bottom:0;width:500px;background:var(--surface);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:var(--shl)}
+#panel.open{transform:translateX(0)}
+#ph{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px;display:flex;align-items:flex-start;gap:12px;z-index:1}
+#pb{padding:18px}
+.pf{margin-bottom:16px}
+.pfl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-muted);margin-bottom:4px}
+.pfv{font-size:13.5px}
+.p-section{font-size:13px;font-weight:700;margin:18px 0 10px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+.comment-box{display:flex;gap:8px;margin-top:10px}
+.ci{flex:1;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 11px;font-size:13px;color:var(--text);outline:none;font-family:inherit}
+.ci:focus{border-color:var(--accent)}
+.comment-item{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--border)}
+.comment-item:last-child{border-bottom:none}
+.ca{font-size:11px;font-weight:700}
+.ct{font-size:12.5px;color:var(--text-muted);margin-top:2px}
+.ctm{font-size:10px;color:var(--text-muted);margin-top:2px}
+
+/* CAPACITY */
+.cap-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.cap-row:last-child{border-bottom:none}
+.cap-bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.cap-bar-fill{height:100%;border-radius:4px;transition:width .6s}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.team-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px;box-shadow:var(--sh);text-align:center}
+.team-card-av{width:52px;height:52px;border-radius:50%;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.team-card-name{font-size:13px;font-weight:700}
+.team-card-role{font-size:12px;color:var(--text-muted);margin-top:2px}
+.team-card-dept{font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin:6px auto 0;display:inline-block}
+.team-stats{display:flex;justify-content:center;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.ts-item{text-align:center}
+.ts-val{font-size:16px;font-weight:700}
+.ts-label{font-size:10px;color:var(--text-muted)}
+
+/* EXEC DASH */
+.exec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.exec-metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:20px;text-align:center;box-shadow:var(--sh)}
+.exec-val{font-size:36px;font-weight:800;line-height:1}
+.exec-label{font-size:13px;color:var(--text-muted);margin-top:4px}
+.exec-trend{font-size:12px;margin-top:6px}
+
+/* HIERARCHY INDENT */
+.hier-l1{padding-left:0}
+.hier-l2{padding-left:20px}
+.hier-l3{padding-left:40px}
+.hier-l4{padding-left:60px}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;right:22px;z-index:999;background:#1e293b;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 28px rgba(0,0,0,.22);transform:translateY(60px) scale(.95);opacity:0;transition:all .3s}
+#toast.show{transform:translateY(0) scale(1);opacity:1}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(--text-muted)}
+.empty-icon{font-size:44px;margin-bottom:10px}
+
+/* MISC */
+.flex{display:flex}.aic{align-items:center}.g2{gap:8px}.g3{gap:12px}
+.mla{margin-left:auto}.muted{color:var(--text-muted);font-size:12px}
+.mt1{margin-top:4px}.mt2{margin-top:8px}.fw6{font-weight:600}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.section-tabs{display:flex;gap:4px;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0}
+.stab{padding:8px 14px;font-size:13px;font-weight:600;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.stab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.stab:hover{color:var(--text)}
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;font-size:13px;color:#1e40af;margin-bottom:14px}
+.warn-box{background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;font-size:13px;color:#92400e;margin-bottom:14px}
+@media(max-width:1000px){.stats-grid{grid-template-columns:repeat(2,1fr)}.dash-grid{grid-template-columns:1fr}.team-grid{grid-template-columns:repeat(2,1fr)}}
+
+/* ── RESPONSIVE / MOBILE ── */
+#hamburger{display:none;background:none;border:none;cursor:pointer;padding:6px;color:var(--text)}
+#sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+
+@media(max-width:768px){
+  :root{--sw:260px}
+  /* Sidebar slides off-screen by default */
+  #sidebar{transform:translateX(-100%);transition:transform .25s ease;z-index:200}
+  #sidebar.open{transform:translateX(0)}
+  #sidebar-backdrop.open{display:block}
+  #hamburger{display:flex;align-items:center;justify-content:center}
+  #main{margin-left:0!important}
+  /* Topbar */
+  #topbar{padding:10px 14px;gap:8px;flex-wrap:nowrap}
+  #page-title{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px}
+  .topbar-search{display:none}
+  /* Stats grid single column */
+  .stats-grid{grid-template-columns:1fr 1fr!important}
+  .stat-card{padding:12px}
+  .stat-val{font-size:22px}
+  /* Content padding */
+  #content{padding:12px}
+  .card{padding:14px}
+  /* Tables scroll */
+  .table-wrap,.table-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:600px}
+  /* Kanban horizontal scroll */
+  #kanban-board{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:12px}
+  .kanban-col{min-width:240px}
+  /* Forms */
+  .form-grid{grid-template-columns:1fr!important}
+  .fg{grid-column:span 1!important}
+  /* Panel full width */
+  #panel{width:100%!important;max-width:100vw}
+  /* Login */
+  .login-box{padding:24px 18px}
+  /* Modal */
+  #item-modal{width:95vw!important;padding:20px 16px}
+  /* New Item modal grids */
+  #item-modal .grid-2col{grid-template-columns:1fr!important}
+  /* Backlog items */
+  .backlog-item{flex-wrap:wrap;gap:6px}
+  /* Team grid */
+  .team-grid{grid-template-columns:1fr 1fr!important}
+  /* Role grid on login */
+  .role-grid{grid-template-columns:1fr 1fr!important}
+  /* hide less important table cols */
+  .col-hide-mobile{display:none}
+  /* Top bar new item btn text */
+  #tb-btn span.btn-text{display:none}
+}
+
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr!important}
+  .stat-card{padding:10px}
+  .team-grid{grid-template-columns:1fr!important}
+  #page-title{max-width:90px}
+  .role-grid{grid-template-columns:1fr!important}
+  #content{padding:10px}
+}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.75}
+  .nav-item.active svg,.nav-item:hover svg{opacity:1}
+  .stat-icon svg{width:22px;height:22px}
+  .prio-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:3px}
+  .pd-critical{background:#dc2626}.pd-high{background:#ea580c}.pd-medium{background:#ca8a04}.pd-low{background:#16a34a}
+  .sd{width:7px;height:7px;border-radius:50%;flex-shrink:0;display:inline-block;margin-right:3px}
+  .sd-open{background:#3b82f6}.sd-ip{background:#d97706}.sd-review{background:#9333ea}.sd-closed{background:#94a3b8}
+  .badge svg,.badge .sd,.badge .prio-dot{vertical-align:middle}
+  .badge svg{width:11px;height:11px}
+  .btn svg{width:14px;height:14px}
+  .topbar-search svg{width:15px;height:15px;opacity:.5}
+  .notif-btn svg{width:17px;height:17px}
+</style>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ════ LOGIN SCREEN ════ -->
+
+<!-- ════ FIREBASE SETUP SCREEN ════ -->
+<div id="setup-screen" style="display:none;position:fixed;inset:0;background:linear-gradient(135deg,#1e1b4b,#312e81);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:40px;max-width:600px;width:100%;box-shadow:0 25px 80px rgba(0,0,0,.4)">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:40px;margin-bottom:8px">🔥</div>
+      <h2 style="font-size:22px;font-weight:800;color:#1a202c">Connect to Firebase</h2>
+      <p style="font-size:13px;color:#718096;margin-top:6px">Paste your Firebase config below to enable real-time sync across all users.</p>
+    </div>
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px;margin-bottom:16px;font-size:12px;color:#475569;line-height:1.7">
+      <b>How to get your Firebase config:</b><br/>
+      1. Go to <a href="https://console.firebase.google.com" target="_blank" style="color:#6366f1">console.firebase.google.com</a><br/>
+      2. Click <b>+ Add project</b> → name it "flowtrack" → Continue<br/>
+      3. In the project, click <b>⚙️ Project Settings</b> → scroll to <b>Your apps</b><br/>
+      4. Click <b>&lt;/&gt; Web</b> → register app → copy the <code>firebaseConfig</code> object<br/>
+      5. Also go to <b>Build → Firestore Database</b> → Create database → Start in <b>test mode</b>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:700;color:#374151;display:block;margin-bottom:6px">Paste firebaseConfig JSON here:</label>
+      <textarea id="fb-config-input" style="width:100%;height:140px;font-family:monospace;font-size:12px;background:#1e293b;color:#e2e8f0;border:none;border-radius:8px;padding:12px;outline:none;resize:none" placeholder='{&#10;  "apiKey": "AIza...",&#10;  "authDomain": "your-project.firebaseapp.com",&#10;  "projectId": "your-project-id",&#10;  "storageBucket": "your-project.appspot.com",&#10;  "messagingSenderId": "1234567890",&#10;  "appId": "1:123:web:abc"&#10;}'></textarea>
+    </div>
+    <div id="setup-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px;font-size:13px;color:#dc2626;margin-bottom:12px"></div>
+    <button onclick="connectFirebase()" style="width:100%;padding:12px;background:#6366f1;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+      🚀 Connect &amp; Launch WV Track
+    </button>
+    <div style="text-align:center;margin-top:12px">
+      <span onclick="useDemoMode()" style="font-size:12px;color:#6366f1;cursor:pointer;text-decoration:underline">Use demo mode (local only, not shared)</span>
+    </div>
+  </div>
+</div>
+
+<div id="loading-overlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:1500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px">
+  <div style="width:40px;height:40px;border:3px solid #e2e8f0;border-top-color:#6366f1;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div style="font-size:14px;font-weight:600;color:#6366f1" id="loading-msg">Connecting to database…</div>
+</div>
+
+<div id="login-screen">
+  <div class="login-box" style="max-width:420px">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="width:56px;height:56px;background:linear-gradient(135deg,#6366f1,#8b5cf6);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff;margin:0 auto 12px">WV</div>
+      <div class="login-title">WV Track</div>
+      <div class="login-sub">Sign in to your workspace</div>
+    </div>
+    <form onsubmit="doLogin(event)">
+      <div id="login-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;text-align:center"></div>
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px">Username</label>
+        <input id="login-username" type="text" placeholder="Enter your username" autocomplete="username" style="width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:border .15s" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+      </div>
+      <div style="margin-bottom:20px">
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:5px">Password</label>
+        <input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password" style="width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:border .15s" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+      </div>
+      <button type="submit" style="width:100%;padding:11px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">Sign In</button>
+    </form>
+    <div style="margin-top:18px;padding-top:16px;border-top:1px solid #f1f5f9">
+      <div style="font-size:11px;color:#94a3b8;text-align:center;margin-bottom:8px">Demo accounts</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center">
+        <span onclick="fillLogin('admin','admin123')" style="font-size:11px;padding:3px 9px;background:#eef2ff;color:#6366f1;border-radius:6px;cursor:pointer;font-weight:600">admin</span>
+        <span onclick="fillLogin('pm','pm123')" style="font-size:11px;padding:3px 9px;background:#eef2ff;color:#6366f1;border-radius:6px;cursor:pointer;font-weight:600">pm</span>
+        <span onclick="fillLogin('dev','dev123')" style="font-size:11px;padding:3px 9px;background:#f0fdf4;color:#10b981;border-radius:6px;cursor:pointer;font-weight:600">dev</span>
+        <span onclick="fillLogin('qa','qa123')" style="font-size:11px;padding:3px 9px;background:#fffbeb;color:#f59e0b;border-radius:6px;cursor:pointer;font-weight:600">qa</span>
+        <span onclick="fillLogin('ba','ba123')" style="font-size:11px;padding:3px 9px;background:#eff6ff;color:#3b82f6;border-radius:6px;cursor:pointer;font-weight:600">ba</span>
+        <span onclick="fillLogin('support','support123')" style="font-size:11px;padding:3px 9px;background:#fdf4ff;color:#ec4899;border-radius:6px;cursor:pointer;font-weight:600">support</span>
+        <span onclick="fillLogin('finance','finance123')" style="font-size:11px;padding:3px 9px;background:#f0fdfa;color:#14b8a6;border-radius:6px;cursor:pointer;font-weight:600">finance</span>
+        <span onclick="fillLogin('hr','hr123')" style="font-size:11px;padding:3px 9px;background:#fff7ed;color:#f97316;border-radius:6px;cursor:pointer;font-weight:600">hr</span>
+        <span onclick="fillLogin('mgmt','mgmt123')" style="font-size:11px;padding:3px 9px;background:#faf5ff;color:#8b5cf6;border-radius:6px;cursor:pointer;font-weight:600">mgmt</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP SHELL ════ -->
+<div id="sidebar-backdrop" onclick="closeSidebar()"></div>
+<div id="app">
+  <nav id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">WV</div>
+      <span class="logo-text">WV<span>Track</span></span>
+    </div>
+    <div class="sidebar-nav" id="sidebar-nav"></div>
+    <div class="sidebar-user">
+      <div class="su-avatar" id="su-avatar"></div>
+      <div class="su-info">
+        <div class="su-name" id="su-name"></div>
+        <div class="su-role" id="su-role-label"></div>
+      </div>
+      <span class="su-switch" onclick="switchUser()">Switch</span>
+    </div>
+  </nav>
+  <div id="main">
+    <div id="topbar">
+      <button id="hamburger" onclick="toggleSidebar()" title="Menu">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+      </button>
+      <h2 id="page-title">Dashboard</h2>
+      <div class="topbar-search">
+        <span style="color:var(--text-muted);display:flex"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></span>
+        <input type="text" id="search-input" placeholder="Search work items…" oninput="handleSearch()"/>
+      </div>
+      <div class="topbar-right">
+        <div class="notif-btn" title="Notifications"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg><div class="notif-dot"></div></div>
+        <button class="btn btn-primary" id="tb-btn" onclick="tbAction()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Item</button>
+      </div>
+    </div>
+    <div id="content">
+
+      <!-- ═══ PM / ADMIN DASHBOARD ═══ -->
+      <div id="page-dashboard" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon si-purple"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg></div><div><div class="stat-val" id="st-total">0</div><div class="stat-label">Total Items</div><div class="stat-delta du">↑ 3 this week</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-red"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg></div><div><div class="stat-val" id="st-bugs">0</div><div class="stat-label">Open Bugs</div><div class="stat-delta dd">↓ 2 resolved</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-amber"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d=""/></svg></div><div><div class="stat-val" id="st-pending">0</div><div class="stat-label">Pending</div><div class="stat-delta du">↑ 1 new</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"/></svg></div><div><div class="stat-val" id="st-done">0</div><div class="stat-label">Completed</div><div class="stat-delta du">↑ 5 this sprint</div></div></div>
+        </div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recent Activity</span><span class="muted">Last 7 days</span></div>
+            <div class="card-body" id="activity-feed"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div class="card">
+              <div class="card-header"><div class="flex aic g2"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 0 1-.659 1.591l-5.432 5.432a2.25 2.25 0 0 0-.659 1.591v2.927a2.25 2.25 0 0 1-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 0 0-.659-1.591L3.659 7.409A2.25 2.25 0 0 1 3 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0 1 12 3Z"/></svg><span class="card-title">Items by Priority</span></div></div>
+              <div class="card-body"><div class="priority-bars" id="prio-bars"></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="flex aic g2"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg><span class="card-title">Sprint 12 Progress</span></div></div>
+              <div class="card-body">
+                <div class="flex aic g2" style="margin-bottom:6px"><span style="font-size:13px;font-weight:600">Sprint 12</span><span class="mla muted">8/14 done</span></div>
+                <div style="background:var(--surface2);border-radius:6px;height:9px;overflow:hidden"><div style="width:57%;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:6px"></div></div>
+                <div class="muted mt1">6 days remaining · 57% complete</div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div class="flex aic g2"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg><span class="card-title">Team Workload</span></div></div>
+              <div class="card-body" id="workload-mini"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ EXEC DASHBOARD (Management) ═══ -->
+      <div id="page-exec-dashboard" class="page">
+        <div class="info-box">📊 Executive view — read-only overview of all projects and teams.</div>
+        <div class="exec-grid">
+          <div class="exec-metric"><div class="exec-val" style="color:#6366f1">14</div><div class="exec-label">Total Work Items</div><div class="exec-trend du">↑ 3 this week</div></div>
+          <div class="exec-metric"><div class="exec-val" style="color:#10b981">57%</div><div class="exec-label">Sprint Completion</div><div class="exec-trend du">↑ 7% vs last sprint</div></div>
+          <div class="exec-metric"><div class="exec-val" style="color:#ef4444">5</div><div class="exec-label">Open Bugs</div><div class="exec-trend dd">↑ 1 critical</div></div>
+          <div class="exec-metric"><div class="exec-val" style="color:#f59e0b">4</div><div class="exec-label">Pending Requests</div><div class="exec-trend muted">No change</div></div>
+          <div class="exec-metric"><div class="exec-val" style="color:#3b82f6">9</div><div class="exec-label">Team Members</div><div class="exec-trend muted">3 departments</div></div>
+          <div class="exec-metric"><div class="exec-val" style="color:#8b5cf6">12</div><div class="exec-label">Days to Deadline</div><div class="exec-trend dd">Sprint 12 ends Jun 6</div></div>
+        </div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Department Status</span></div>
+            <div class="card-body">
+              <table><thead><tr><th>Department</th><th>Items</th><th>Open</th><th>Done</th><th>Health</th></tr></thead>
+              <tbody>
+                <tr><td><b>IT / Engineering</b></td><td>8</td><td>5</td><td>3</td><td><span class="badge b-medium">⚠ At Risk</span></td></tr>
+                <tr><td><b>Finance</b></td><td>2</td><td>1</td><td>1</td><td><span class="badge b-done">✅ On Track</span></td></tr>
+                <tr><td><b>HR</b></td><td>2</td><td>2</td><td>0</td><td><span class="badge b-in-progress">🔄 In Progress</span></td></tr>
+                <tr><td><b>Business</b></td><td>2</td><td>2</td><td>0</td><td><span class="badge b-open">⬜ Not Started</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recent Activity</span></div>
+            <div class="card-body" id="exec-activity"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ DEV / QA DASHBOARD ═══ -->
+      <div id="page-my-dashboard" class="page">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-icon si-blue"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></div><div><div class="stat-val" id="my-assigned">0</div><div class="stat-label">Assigned to Me</div><div class="stat-delta du">↑ 2 new</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-amber"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg></div><div><div class="stat-val" id="my-inprog">0</div><div class="stat-label">In Progress</div><div class="muted mt1">Active work</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-purple"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></div><div><div class="stat-val" id="my-review">0</div><div class="stat-label">In Review</div><div class="muted mt1">Needs attention</div></div></div>
+          <div class="stat-card"><div class="stat-icon si-green"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"/></svg></div><div><div class="stat-val" id="my-done">0</div><div class="stat-label">Done This Sprint</div><div class="stat-delta du">Good progress!</div></div></div>
+        </div>
+        <div class="dash-grid">
+          <div class="card">
+            <div class="card-header"><div class="flex aic g2"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg><span class="card-title">My Assigned Items</span></div></div>
+            <div class="card-body" style="padding:0"><table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th></tr></thead><tbody id="my-items-tbody"></tbody></table></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Activity</span></div>
+            <div class="card-body" id="my-activity"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ BACKLOG ═══ -->
+      <div id="page-backlog" class="page">
+        <div class="toolbar">
+          <button class="filter-btn active" onclick="blFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="blFilter('epic',this)">Epics</button>
+          <button class="filter-btn" onclick="blFilter('feature',this)">Features</button>
+          <button class="filter-btn" onclick="blFilter('story',this)">Stories</button>
+          <button class="filter-btn" onclick="blFilter('task',this)">Tasks</button>
+          <button class="filter-btn" onclick="blFilter('bug',this)">Bugs</button>
+          <button class="btn btn-primary btn-sm mla" onclick="navigate('submit-request')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> Add Item</button>
+        </div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="sprint-header" onclick="toggleSection('bl-sprint')">
+            <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg></span>
+            <span class="sprint-header-title">Sprint 12 — Current Sprint</span>
+            <span class="sprint-header-meta">May 20 – Jun 6 · 8/14 items done</span>
+            <span id="bl-sprint-arrow">▾</span>
+          </div>
+          <div id="bl-sprint"><div id="bl-sprint-body"></div></div>
+        </div>
+        <div class="card">
+          <div class="unassigned-header">
+            <span>📋</span>
+            <span style="font-size:13px;font-weight:700;flex:1">Product Backlog (Unassigned)</span>
+            <span class="muted" id="bl-unassigned-count"></span>
+          </div>
+          <div id="bl-unassigned-body"></div>
+        </div>
+      </div>
+
+      <!-- ═══ SPRINT BOARD ═══ -->
+      <div id="page-sprints" class="page">
+        <div class="sprint-info-bar">
+          <div class="sib-item"><div class="sib-val">Sprint 12</div><div class="sib-label">Current Sprint</div></div>
+          <div class="sib-divider"></div>
+          <div class="sib-item"><div class="sib-val">May 20</div><div class="sib-label">Start Date</div></div>
+          <div class="sib-divider"></div>
+          <div class="sib-item"><div class="sib-val">Jun 6</div><div class="sib-label">End Date</div></div>
+          <div class="sib-divider"></div>
+          <div class="sib-item"><div class="sib-val" style="color:#10b981">8</div><div class="sib-label">Done</div></div>
+          <div class="sib-divider"></div>
+          <div class="sib-item"><div class="sib-val" style="color:#f59e0b">6</div><div class="sib-label">Remaining</div></div>
+          <div class="sib-divider"></div>
+          <div class="sib-item"><div class="sib-val">34 pts</div><div class="sib-label">Velocity</div></div>
+        </div>
+        <div class="kanban-wrap"><div class="kanban-board" id="sprint-board"></div></div>
+      </div>
+
+      <!-- ═══ ALL ITEMS ═══ -->
+      <div id="page-items" class="page">
+        <div class="toolbar">
+          <div class="flex g2" id="items-filter-group">
+            <button class="filter-btn active" onclick="filterItems('all',this)">All</button>
+            <button class="filter-btn" onclick="filterItems('open',this)">Open</button>
+            <button class="filter-btn" onclick="filterItems('in-progress',this)">In Progress</button>
+            <button class="filter-btn" onclick="filterItems('review',this)">Review</button>
+            <button class="filter-btn" onclick="filterItems('done',this)">Done</button>
+          </div>
+          <select class="fc mla" style="width:auto;padding:5px 10px;font-size:12px" onchange="filterByType(this.value)">
+            <option value="">All Types</option>
+            <option value="bug">Bug</option>
+            <option value="request">Request</option>
+            <option value="feature">Feature</option>
+            <option value="task">Task</option>
+            <option value="story">User Story</option>
+            <option value="epic">Epic</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th onclick="sortT('id')">ID ↕</th><th onclick="sortT('title')">Title ↕</th><th>Type</th><th onclick="sortT('priority')">Priority ↕</th><th onclick="sortT('status')">Status ↕</th><th>Assignee</th><th>Dept</th><th onclick="sortT('created')">Created ↕</th></tr></thead>
+          <tbody id="items-tbody"></tbody></table>
+        </div>
+      </div>
+
+      <!-- ═══ KANBAN ═══ -->
+      <div id="page-kanban" class="page">
+        <div class="kanban-wrap"><div class="kanban-board" id="kanban-board"></div></div>
+      </div>
+
+      <!-- ═══ MY WORK ═══ -->
+      <div id="page-my-work" class="page">
+        <div class="my-work-section">
+          <div class="mws-title"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg> In Progress</div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Due</th></tr></thead><tbody id="mw-inprog"></tbody></table></div>
+        </div>
+        <div class="my-work-section">
+          <div class="mws-title"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg> Assigned (Not Started)</div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Sprint</th></tr></thead><tbody id="mw-open"></tbody></table></div>
+        </div>
+        <div class="my-work-section">
+          <div class="mws-title"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"/></svg> Completed This Sprint</div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Completed</th></tr></thead><tbody id="mw-done"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ═══ SUBMIT REQUEST ═══ -->
+      <div id="page-submit-request" class="page">
+        <div class="sec-header"><h3 style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg> Submit Request</h3><p>Submit a feature request, change request, or general task.</p></div>
+        <div class="form-card">
+          <form onsubmit="submitItem(event,'request')">
+            <div class="form-grid">
+              <div class="fg full"><label>Title *</label><input class="fc" id="req-title" placeholder="Brief summary" required/></div>
+              <div class="fg full"><label>Description *</label><textarea class="fc" id="req-desc" placeholder="Business justification, expected outcome…" required></textarea></div>
+              <div class="fg"><label>Type</label><select class="fc" id="req-type"><option value="request">General Request</option><option value="feature">Feature Request</option><option value="story">User Story</option><option value="task">Task</option></select></div>
+              <div class="fg"><label>Priority</label><select class="fc" id="req-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select></div>
+              <div class="fg"><label>Department</label><select class="fc" id="req-dept"><option>IT</option><option>Finance</option><option>HR</option><option>Business</option><option>Operations</option><option>Management</option></select></div>
+              <div class="fg"><label>Assign To</label><select class="fc" id="req-assignee"><option>Chin Hui</option><option>Ahmad Razif</option><option>Sarah Lim</option><option>David Tan</option><option>Nurul Ain</option><option>Lee Wei Hong</option><option>Farah Nadia</option></select></div>
+              <div class="fg"><label>Due Date</label><input class="fc" type="date" id="req-due"/></div>
+              <div class="fg"><label>Story Points</label><select class="fc" id="req-pts"><option value="1">1 pt</option><option value="2">2 pts</option><option value="3" selected>3 pts</option><option value="5">5 pts</option><option value="8">8 pts</option><option value="13">13 pts</option></select></div>
+              <div class="fg full"><label>Acceptance Criteria</label><textarea class="fc" id="req-ac" placeholder="Given / When / Then…" style="min-height:65px"></textarea></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" onclick="resetF('req')">Clear</button>
+              <button type="submit" class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg> Submit Request</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══ LOG BUG ═══ -->
+      <div id="page-log-bug" class="page">
+        <div class="sec-header"><h3 style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Log a Bug</h3><p>Report a defect or unexpected behaviour.</p></div>
+        <div class="form-card">
+          <form onsubmit="submitItem(event,'bug')">
+            <div class="form-grid">
+              <div class="fg full"><label>Bug Title *</label><input class="fc" id="bug-title" placeholder="e.g. Login button unresponsive on Safari" required/></div>
+              <div class="fg full"><label>Steps to Reproduce *</label><textarea class="fc" id="bug-desc" placeholder="1. Go to…&#10;2. Click on…&#10;3. Observe that…" required></textarea></div>
+              <div class="fg full"><label>Expected vs Actual</label><textarea class="fc" id="bug-expected" placeholder="Expected: …&#10;Actual: …" style="min-height:65px"></textarea></div>
+              <div class="fg"><label>Severity</label><select class="fc" id="bug-priority"><option value="low">Low — Cosmetic</option><option value="medium" selected>Medium — Functional</option><option value="high">High — Major Impact</option><option value="critical">Critical — Blocker</option></select></div>
+              <div class="fg"><label>Environment</label><select class="fc" id="bug-env"><option>Production</option><option>Staging</option><option>UAT</option><option>Development</option></select></div>
+              <div class="fg"><label>Assign To</label><select class="fc" id="bug-assignee"><option>Ahmad Razif</option><option>Chin Hui</option><option>Sarah Lim</option><option>David Tan</option><option>Nurul Ain</option></select></div>
+              <div class="fg"><label>Browser / Device</label><input class="fc" id="bug-browser" placeholder="e.g. Chrome 124, iPhone 15"/></div>
+              <div class="fg"><label>Build / Version</label><input class="fc" id="bug-build" placeholder="e.g. v2.4.1"/></div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" onclick="resetF('bug')">Clear</button>
+              <button type="submit" class="btn btn-danger"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Submit Bug Report</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══ BUGS LIST ═══ -->
+      <div id="page-bugs" class="page">
+        <div class="toolbar">
+          <div class="flex g2" id="bugs-fg">
+            <button class="filter-btn active" onclick="filterSub('bugs','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSub('bugs','open',this)">Open</button>
+            <button class="filter-btn" onclick="filterSub('bugs','in-progress',this)">In Progress</button>
+            <button class="filter-btn" onclick="filterSub('bugs','review',this)">Review</button>
+            <button class="filter-btn" onclick="filterSub('bugs','done',this)">Resolved</button>
+          </div>
+          <button class="btn btn-danger btn-sm mla" onclick="navigate('log-bug')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg> Log Bug</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Priority</th><th>Status</th><th>Env</th><th>Assignee</th><th>Created</th></tr></thead><tbody id="bugs-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ═══ REQUESTS LIST ═══ -->
+      <div id="page-requests" class="page">
+        <div class="toolbar">
+          <div class="flex g2" id="req-fg">
+            <button class="filter-btn active" onclick="filterSub('requests','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSub('requests','open',this)">Open</button>
+            <button class="filter-btn" onclick="filterSub('requests','in-progress',this)">In Progress</button>
+            <button class="filter-btn" onclick="filterSub('requests','done',this)">Done</button>
+          </div>
+          <button class="btn btn-primary btn-sm mla" onclick="navigate('submit-request')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> Submit</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Dept</th><th>Assignee</th><th>Created</th></tr></thead><tbody id="req-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ═══ SERVICE REQUESTS (IT Support) ═══ -->
+      <div id="page-service-requests" class="page">
+        <div class="toolbar">
+          <div class="flex g2">
+            <button class="filter-btn active" onclick="filterSub('service','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSub('service','open',this)">Open</button>
+            <button class="filter-btn" onclick="filterSub('service','in-progress',this)">In Progress</button>
+            <button class="filter-btn" onclick="filterSub('service','done',this)">Resolved</button>
+          </div>
+          <button class="btn btn-primary btn-sm mla" onclick="navigate('submit-request')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Request</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Priority</th><th>Status</th><th>Requester</th><th>Created</th></tr></thead><tbody id="service-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ═══ TEST PLANS (QA) ═══ -->
+      <div id="page-test-plans" class="page">
+        <div class="section-tabs">
+          <span class="stab active" onclick="showTestTab('suites',this)">Test Suites</span>
+          <span class="stab" onclick="showTestTab('cases',this)">Test Cases</span>
+          <span class="stab" onclick="showTestTab('runs',this)">Test Runs</span>
+        </div>
+        <div id="test-suites">
+          <div class="toolbar"><button class="btn btn-primary btn-sm" onclick="showToast('✅ New test suite created')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Suite</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Suite</th><th>Cases</th><th>Passed</th><th>Failed</th><th>Blocked</th><th>Progress</th></tr></thead>
+          <tbody>
+            <tr onclick="showTestTab('cases',document.querySelector('.stab:nth-child(2)')+'')"><td><b>🧪 Login & Auth</b></td><td>8</td><td>6</td><td>1</td><td>1</td><td><div style="background:var(--surface2);border-radius:4px;height:6px;width:120px;overflow:hidden"><div style="width:75%;height:100%;background:#10b981;border-radius:4px"></div></div></td></tr>
+            <tr><td><b>🧪 Dashboard</b></td><td>12</td><td>10</td><td>2</td><td>0</td><td><div style="background:var(--surface2);border-radius:4px;height:6px;width:120px;overflow:hidden"><div style="width:83%;height:100%;background:#10b981;border-radius:4px"></div></div></td></tr>
+            <tr><td><b>🧪 Invoice / Billing</b></td><td>15</td><td>9</td><td>4</td><td>2</td><td><div style="background:var(--surface2);border-radius:4px;height:6px;width:120px;overflow:hidden"><div style="width:60%;height:100%;background:#f59e0b;border-radius:4px"></div></div></td></tr>
+            <tr><td><b>🧪 API Endpoints</b></td><td>20</td><td>14</td><td>5</td><td>1</td><td><div style="background:var(--surface2);border-radius:4px;height:6px;width:120px;overflow:hidden"><div style="width:70%;height:100%;background:#f59e0b;border-radius:4px"></div></div></td></tr>
+            <tr><td><b>🧪 Mobile Responsive</b></td><td>10</td><td>3</td><td>6</td><td>1</td><td><div style="background:var(--surface2);border-radius:4px;height:6px;width:120px;overflow:hidden"><div style="width:30%;height:100%;background:#ef4444;border-radius:4px"></div></div></td></tr>
+          </tbody></table></div>
+        </div>
+        <div id="test-cases" style="display:none">
+          <div class="toolbar"><button class="btn btn-primary btn-sm" onclick="showToast('✅ New test case added')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Test Case</button></div>
+          <div class="table-wrap" id="test-cases-table"></div>
+        </div>
+        <div id="test-runs" style="display:none">
+          <div class="table-wrap"><table><thead><tr><th>Run Name</th><th>Date</th><th>Executed By</th><th>Total</th><th>Pass</th><th>Fail</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><b>Sprint 12 Regression</b></td><td>2026-05-20</td><td>Sarah Lim</td><td>55</td><td>42</td><td>10</td><td><span class="badge b-in-progress">🔄 Running</span></td></tr>
+            <tr><td><b>Sprint 11 Full Run</b></td><td>2026-05-06</td><td>Sarah Lim</td><td>55</td><td>48</td><td>7</td><td><span class="badge b-done">✅ Passed</span></td></tr>
+            <tr><td><b>Hotfix v2.3.1 Smoke</b></td><td>2026-05-03</td><td>Sarah Lim</td><td>20</td><td>18</td><td>2</td><td><span class="badge b-done">✅ Passed</span></td></tr>
+            <tr><td><b>Sprint 10 Full Run</b></td><td>2026-04-22</td><td>Sarah Lim</td><td>50</td><td>38</td><td>12</td><td><span class="badge b-fail">❌ Failed</span></td></tr>
+          </tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ═══ PIPELINES ═══ -->
+      <div id="page-pipelines" class="page">
+        <div class="toolbar"><button class="btn btn-primary btn-sm" onclick="showToast('🚀 Pipeline triggered')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"/></svg> Run Pipeline</button></div>
+        <div class="card" id="pipeline-list"></div>
+      </div>
+
+      <!-- ═══ APPROVALS ═══ -->
+      <div id="page-approvals" class="page">
+        <div class="info-box" id="approvals-info">Items requiring your approval are listed below.</div>
+        <div id="approvals-list"></div>
+      </div>
+
+      <!-- ═══ FINANCE REQUESTS ═══ -->
+      <div id="page-finance-requests" class="page">
+        <div class="toolbar">
+          <div class="flex g2">
+            <button class="filter-btn active" onclick="filterSub('finance','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSub('finance','open',this)">Pending</button>
+            <button class="filter-btn" onclick="filterSub('finance','done',this)">Approved</button>
+          </div>
+          <button class="btn btn-primary btn-sm mla" onclick="navigate('submit-request')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Request</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Amount</th><th>Priority</th><th>Status</th><th>Submitted</th><th>Approval</th></tr></thead><tbody id="finance-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ═══ HR REQUESTS ═══ -->
+      <div id="page-hr-requests" class="page">
+        <div class="toolbar">
+          <div class="flex g2">
+            <button class="filter-btn active" onclick="filterSub('hr','all',this)">All</button>
+            <button class="filter-btn" onclick="filterSub('hr','open',this)">Open</button>
+            <button class="filter-btn" onclick="filterSub('hr','done',this)">Resolved</button>
+          </div>
+          <button class="btn btn-primary btn-sm mla" onclick="navigate('submit-request')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Request</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>ID</th><th>Title</th><th>Category</th><th>Employee</th><th>Status</th><th>Created</th></tr></thead><tbody id="hr-tbody"></tbody></table></div>
+      </div>
+
+      <!-- ═══ REPORTS ═══ -->
+      <div id="page-reports" class="page">
+        <div class="section-tabs">
+          <span class="stab active" onclick="showReportTab('velocity',this)">Velocity</span>
+          <span class="stab" onclick="showReportTab('burndown',this)">Burndown</span>
+          <span class="stab" onclick="showReportTab('cumulative',this)">By Department</span>
+        </div>
+        <div id="report-velocity">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Sprint Velocity (Story Points)</span></div>
+            <div class="card-body">
+              <div style="display:flex;gap:12px;align-items:flex-end;height:160px;margin-bottom:8px">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="background:#c7d2fe;border-radius:4px 4px 0 0;width:100%;height:90px"></div><span style="font-size:11px;color:var(--text-muted)">Spr 9</span><span style="font-size:12px;font-weight:700">28</span></div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="background:#a5b4fc;border-radius:4px 4px 0 0;width:100%;height:108px"></div><span style="font-size:11px;color:var(--text-muted)">Spr 10</span><span style="font-size:12px;font-weight:700">34</span></div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="background:#818cf8;border-radius:4px 4px 0 0;width:100%;height:100px"></div><span style="font-size:11px;color:var(--text-muted)">Spr 11</span><span style="font-size:12px;font-weight:700">31</span></div>
+                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1"><div style="background:#6366f1;border-radius:4px 4px 0 0;width:100%;height:109px"></div><span style="font-size:11px;color:var(--text-muted)">Spr 12</span><span style="font-size:12px;font-weight:700">34 🎯</span></div>
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);text-align:center">Average velocity: 31.75 pts/sprint</div>
+            </div>
+          </div>
+        </div>
+        <div id="report-burndown" style="display:none">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Sprint 12 Burndown</span></div>
+            <div class="card-body">
+              <div class="warn-box">📉 Remaining: 6 items · 16 story points — slightly behind ideal line.</div>
+              <table><thead><tr><th>Day</th><th>Ideal Remaining</th><th>Actual Remaining</th><th>Completed</th></tr></thead>
+              <tbody>
+                <tr><td>Day 1 (May 20)</td><td>14</td><td>14</td><td>0</td></tr>
+                <tr><td>Day 3 (May 22)</td><td>12</td><td>13</td><td>1</td></tr>
+                <tr><td>Day 5 (May 24)</td><td>10</td><td>11</td><td>3</td></tr>
+                <tr><td>Day 7 (May 26)</td><td>8</td><td>9</td><td>5</td></tr>
+                <tr><td>Day 9 (May 28)</td><td>6</td><td>8</td><td>6</td></tr>
+                <tr><td><b>Today (Day 11)</b></td><td><b>4</b></td><td><b>6</b></td><td><b>8</b></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+        <div id="report-cumulative" style="display:none">
+          <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon si-purple">💼</div><div><div class="stat-val">8</div><div class="stat-label">IT / Engineering</div><div class="muted mt1">5 open · 3 done</div></div></div>
+            <div class="stat-card"><div class="stat-icon si-green">💰</div><div><div class="stat-val">2</div><div class="stat-label">Finance</div><div class="muted mt1">1 open · 1 done</div></div></div>
+            <div class="stat-card"><div class="stat-icon si-pink">👥</div><div><div class="stat-val">2</div><div class="stat-label">HR</div><div class="muted mt1">2 open · 0 done</div></div></div>
+            <div class="stat-card"><div class="stat-icon si-blue">📊</div><div><div class="stat-val">2</div><div class="stat-label">Business</div><div class="muted mt1">2 open · 0 done</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ TEAM ═══ -->
+      <div id="page-team" class="page">
+        <div class="team-grid" id="team-grid"></div>
+      </div>
+
+      <!-- ═══ SETTINGS (Admin) ═══ -->
+      <div id="page-settings" class="page">
+        <div class="sec-header"><h3 style="display:flex;align-items:center;gap:8px"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg> Admin Settings</h3><p>Manage users, roles, departments and system configuration.</p></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+          <div class="form-card">
+            <div style="font-size:14px;font-weight:700;margin-bottom:14px">👥 User Management</div>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Dept</th><th>Status</th></tr></thead>
+            <tbody id="users-settings-tbody"></tbody></table></div>
+          </div>
+          <div class="form-card">
+            <div style="font-size:14px;font-weight:700;margin-bottom:14px">🏢 Departments</div>
+            <div class="table-wrap"><table><thead><tr><th>Department</th><th>Members</th><th>Head</th></tr></thead>
+            <tbody>
+              <tr><td><span class="badge b-feature">IT / Engineering</span></td><td>4</td><td>Chin Hui</td></tr>
+              <tr><td><span class="badge b-open">PMO</span></td><td>1</td><td>Chin Hui</td></tr>
+              <tr><td><span class="badge b-story">Finance</span></td><td>1</td><td>Lee Wei Hong</td></tr>
+              <tr><td><span class="badge b-task">HR</span></td><td>1</td><td>Farah Nadia</td></tr>
+              <tr><td><span class="badge b-epic">Business</span></td><td>1</td><td>David Tan</td></tr>
+              <tr><td><span class="badge b-medium">Management</span></td><td>1</td><td>Dato' Razak</td></tr>
+            </tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- NEW/EDIT ITEM MODAL -->
+<div id="item-modal-overlay" onclick="closeItemModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000"></div>
+<div id="item-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;z-index:3001;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h3 id="modal-title" style="font-size:17px;font-weight:700">New Item</h3>
+    <button onclick="closeItemModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#718096;line-height:1">✕</button>
+  </div>
+  <form id="item-modal-form" onsubmit="saveModalItem(event)">
+    <input type="hidden" id="modal-edit-id"/>
+    <div style="display:grid;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Title *</label>
+        <input id="modal-item-title" type="text" required placeholder="Enter item title…" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Type</label>
+          <select id="modal-item-type" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="task">Task</option>
+            <option value="bug">Bug</option>
+            <option value="request">Request</option>
+            <option value="feature">Feature</option>
+            <option value="story">User Story</option>
+            <option value="epic">Epic</option>
+            <option value="incident">Incident</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Priority</label>
+          <select id="modal-item-priority" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Status</label>
+          <select id="modal-item-status" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="review">In Review</option>
+            <option value="done">Done</option>
+            <option value="blocked">Blocked</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Sprint</label>
+          <select id="modal-item-sprint" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="Backlog">Backlog</option>
+            <option value="Sprint 1">Sprint 1</option>
+            <option value="Sprint 2">Sprint 2</option>
+            <option value="Sprint 3">Sprint 3</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Assignee</label>
+          <select id="modal-item-assignee" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="">Unassigned</option>
+            <option>Alice Wong</option><option>Bob Tan</option><option>Carol Lim</option>
+            <option>David Chen</option><option>Emma Ng</option><option>Frank Lee</option>
+            <option>Grace Koh</option><option>Henry Lau</option><option>Iris Yap</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Story Points</label>
+          <select id="modal-item-points" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+            <option value="5">5</option><option value="8">8</option><option value="13">13</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Department</label>
+        <select id="modal-item-dept" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+          <option value="IT">IT</option><option value="Engineering">Engineering</option>
+          <option value="QA">QA</option><option value="Finance">Finance</option>
+          <option value="HR">HR</option><option value="Operations">Operations</option>
+          <option value="Sales">Sales</option><option value="Marketing">Marketing</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Description</label>
+        <textarea id="modal-item-desc" rows="3" placeholder="Describe the item…" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button type="button" onclick="closeItemModal()" style="padding:9px 18px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button type="submit" id="modal-save-btn" style="padding:9px 20px;border:none;border-radius:8px;background:#6366f1;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Save Item</button>
+    </div>
+  </form>
+</div>
+
+<!-- PANEL -->
+<div id="overlay" onclick="closePanel()"></div>
+<div id="panel">
+  <div id="ph">
+    <div style="flex:1;min-width:0">
+      <div id="panel-id" class="td-id"></div>
+      <div id="panel-title" style="font-size:15px;font-weight:700;margin-top:2px"></div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <button id="panel-edit-btn" class="btn btn-sm" style="background:#eef2ff;color:#6366f1;border:none" onclick="editPanelItem()">✏️ Edit</button>
+      <button id="panel-delete-btn" class="btn btn-sm" style="background:#fef2f2;color:#ef4444;border:none" onclick="deletePanelItem()">🗑 Delete</button>
+      <button class="btn btn-ghost btn-sm" onclick="closePanel()">✕</button>
+    </div>
+  </div>
+  <div id="pb"></div>
+</div>
+<div id="toast"></div>
+
+<script>
+// ═══════════════ FIREBASE SETUP ═══════════════
+let db = null;
+let isDemoMode = false;
+let unsubscribers = [];
+
+const HARDCODED_FB_CONFIG = {
+  apiKey: "AIzaSyC_F_9DFsQbP_-3VPAOkgRD2afSryufYag",
+  authDomain: "project-management-ae28d.firebaseapp.com",
+  projectId: "project-management-ae28d",
+  storageBucket: "project-management-ae28d.firebasestorage.app",
+  messagingSenderId: "632259413416",
+  appId: "1:632259413416:web:4606f5349ab6d38c57899d",
+  measurementId: "G-Z2W27G83Y3"
+};
+
+function showSetup() {
+  // Auto-connect with hard-coded config — no setup screen needed
+  initFirebase(HARDCODED_FB_CONFIG);
+}
+
+function connectFirebase() {
+  const raw = document.getElementById('fb-config-input').value.trim();
+  const errEl = document.getElementById('setup-error');
+  errEl.style.display = 'none';
+  try {
+    const cfg = raw.startsWith('{') ? JSON.parse(raw) : eval('('+raw+')');
+    if (!cfg.projectId) throw new Error('Missing projectId');
+    localStorage.setItem('fb_config', JSON.stringify(cfg));
+    document.getElementById('setup-screen').style.display = 'none';
+    initFirebase(cfg);
+  } catch(e) {
+    errEl.style.display = 'block';
+    errEl.textContent = 'Invalid config: ' + e.message + '. Make sure you paste the full firebaseConfig object.';
+  }
+}
+
+function useDemoMode() {
+  isDemoMode = true;
+  document.getElementById('setup-screen').style.display = 'none';
+  items = [...SEED_ITEMS];
+  serviceItems = [...SEED_SERVICE];
+  hrItems = [...SEED_HR];
+  testCases = [...SEED_TC];
+  activities = [...SEED_ACTIVITIES];
+  startApp();
+}
+
+function initFirebase(cfg) {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    else firebase.app();
+    db = firebase.firestore();
+    showLoading('Connecting to database…');
+    // Timeout fallback — if Firestore doesn't respond in 8s, use demo mode
+    const timeout = setTimeout(() => {
+      showLoading('Database unavailable. Switching to demo mode…');
+      setTimeout(() => useDemoMode(), 1500);
+    }, 8000);
+    seedIfEmpty().then(() => {
+      clearTimeout(timeout);
+      setupRealtimeListeners();
+    }).catch(e => {
+      clearTimeout(timeout);
+      console.error(e);
+      showLoading('Connection failed. Switching to demo mode…');
+      setTimeout(() => useDemoMode(), 1500);
+    });
+  } catch(e) {
+    console.error(e);
+    useDemoMode();
+  }
+}
+
+function showLoading(msg) {
+  document.getElementById('loading-overlay').style.display = 'flex';
+  document.getElementById('loading-msg').textContent = msg || 'Loading…';
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').style.display = 'none';
+}
+
+async function seedIfEmpty() {
+  const snap = await db.collection('items').limit(1).get();
+  if (!snap.empty) return; // already has data
+  showLoading('Setting up database for first time…');
+  const batch = db.batch();
+  SEED_ITEMS.forEach(item => {
+    batch.set(db.collection('items').doc(item.id), item);
+  });
+  SEED_SERVICE.forEach(item => {
+    batch.set(db.collection('serviceItems').doc(item.id), item);
+  });
+  SEED_HR.forEach(item => {
+    batch.set(db.collection('hrItems').doc(item.id), item);
+  });
+  SEED_TC.forEach(item => {
+    batch.set(db.collection('testCases').doc(item.id), item);
+  });
+  SEED_ACTIVITIES.forEach((item, i) => {
+    batch.set(db.collection('activities').doc('act-'+i), item);
+  });
+  await batch.commit();
+}
+
+function setupRealtimeListeners() {
+  // Listen to items
+  unsubscribers.push(
+    db.collection('items').orderBy('created','desc').onSnapshot(snap => {
+      items = snap.docs.map(d => d.data());
+      refreshStats();
+      if (currentPage === 'items') renderItemsTable();
+      if (currentPage === 'kanban') renderKanban();
+      if (currentPage === 'sprints') renderSprintBoard();
+      if (currentPage === 'backlog') renderBacklog();
+      if (currentPage === 'bugs') renderSubTable('bugs');
+      if (currentPage === 'requests') renderSubTable('requests');
+      if (currentPage === 'finance-requests') renderSubTable('finance');
+      if (currentPage === 'my-work') renderMyWork();
+      if (currentPage === 'my-dashboard') renderMyDashboard();
+      if (currentPage === 'approvals') renderApprovals();
+      if (isOpen) openPanel(openItemId); // refresh open panel
+    })
+  );
+  // Listen to activities
+  unsubscribers.push(
+    db.collection('activities').orderBy('ts','desc').limit(20).onSnapshot(snap => {
+      activities = snap.docs.map(d => d.data());
+      renderActivity();
+    })
+  );
+  // Listen to serviceItems
+  unsubscribers.push(
+    db.collection('serviceItems').onSnapshot(snap => {
+      serviceItems = snap.docs.map(d => d.data());
+      if (currentPage === 'service-requests') renderSubTable('service');
+    })
+  );
+  // Listen to hrItems
+  unsubscribers.push(
+    db.collection('hrItems').onSnapshot(snap => {
+      hrItems = snap.docs.map(d => d.data());
+      if (currentPage === 'hr-requests') renderSubTable('hr');
+    })
+  );
+  // Listen to testCases
+  unsubscribers.push(
+    db.collection('testCases').onSnapshot(snap => {
+      testCases = snap.docs.map(d => d.data());
+      if (currentPage === 'test-plans') renderTestCases();
+    })
+  );
+  hideLoading();
+  startApp();
+}
+
+// ── Write helpers ──────────────────────────────────────────────────────────
+async function dbSave(collection, id, data) {
+  if (isDemoMode) {
+    // update in-memory arrays
+    if (collection === 'items') {
+      const idx = items.findIndex(i => i.id === id);
+      if (idx >= 0) items[idx] = {...items[idx], ...data}; else items.unshift(data);
+      refreshStats(); reRenderCurrentPage();
+    }
+    if (collection === 'serviceItems') { const idx = serviceItems.findIndex(i => i.id === id); if (idx>=0) serviceItems[idx]={...serviceItems[idx],...data}; else serviceItems.unshift(data); }
+    if (collection === 'hrItems') { const idx = hrItems.findIndex(i => i.id === id); if (idx>=0) hrItems[idx]={...hrItems[idx],...data}; else hrItems.unshift(data); }
+    if (collection === 'testCases') { const idx = testCases.findIndex(i => i.id === id); if (idx>=0) testCases[idx]={...testCases[idx],...data}; else testCases.unshift(data); }
+    return;
+  }
+  await db.collection(collection).doc(id).set(data, {merge: true});
+}
+async function dbAdd(collection, data) {
+  if (isDemoMode) { await dbSave(collection, data.id, data); return; }
+  await db.collection(collection).doc(data.id).set(data);
+}
+async function dbAddActivity(text, color) {
+  const act = { text, color, time: 'just now', ts: Date.now() };
+  activities.unshift(act);
+  if (isDemoMode) { renderActivity(); return; }
+  await db.collection('activities').add(act);
+}
+
+function reRenderCurrentPage() {
+  if (currentPage === 'items') renderItemsTable();
+  if (currentPage === 'kanban') renderKanban();
+  if (currentPage === 'sprints') renderSprintBoard();
+  if (currentPage === 'backlog') renderBacklog();
+  if (currentPage === 'bugs') renderSubTable('bugs');
+  if (currentPage === 'requests') renderSubTable('requests');
+  if (currentPage === 'my-work') renderMyWork();
+  if (currentPage === 'my-dashboard') renderMyDashboard();
+  renderActivity();
+}
+
+// ═══════════════ USERS & ROLES ═══════════════
+const CREDENTIALS = {
+  admin:   'admin123',
+  pm:      'pm123',
+  dev:     'dev123',
+  qa:      'qa123',
+  ba:      'ba123',
+  support: 'support123',
+  finance: 'finance123',
+  hr:      'hr123',
+  mgmt:    'mgmt123',
+};
+
+const USERS = {
+  admin:   {id:'admin',  name:'System Admin',    role:'Admin',             dept:'IT',         color:'#6366f1', nav:['dashboard','backlog','sprints','items','kanban','pipelines','test-plans','reports','team','settings']},
+  pm:      {id:'pm',     name:'Chin Hui Soon',   role:'Project Manager',   dept:'PMO',        color:'#6366f1', nav:['dashboard','backlog','sprints','items','kanban','reports','team','approvals']},
+  dev:     {id:'dev',    name:'Ahmad Razif',     role:'Developer',         dept:'IT',         color:'#10b981', nav:['my-dashboard','my-work','sprints','kanban','log-bug','pipelines']},
+  qa:      {id:'qa',     name:'Sarah Lim',       role:'QA Engineer',       dept:'IT',         color:'#f59e0b', nav:['my-dashboard','my-work','bugs','test-plans','log-bug','kanban']},
+  ba:      {id:'ba',     name:'David Tan',       role:'Business Analyst',  dept:'Business',   color:'#3b82f6', nav:['my-dashboard','backlog','requests','items','submit-request']},
+  support: {id:'support',name:'Nurul Ain',       role:'IT Support',        dept:'IT Support', color:'#ec4899', nav:['my-dashboard','my-work','service-requests','log-bug','submit-request']},
+  finance: {id:'finance',name:'Lee Wei Hong',    role:'Finance Executive', dept:'Finance',    color:'#14b8a6', nav:['my-dashboard','finance-requests','approvals','reports']},
+  hr:      {id:'hr',     name:'Farah Nadia',     role:'HR Executive',      dept:'HR',         color:'#f97316', nav:['my-dashboard','hr-requests','approvals','submit-request']},
+  mgmt:    {id:'mgmt',   name:"Dato' Razak",     role:'Director',          dept:'Management', color:'#8b5cf6', nav:['exec-dashboard','reports','team']},
+};
+const NAV_META = {
+  'dashboard':         {label:'Dashboard',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z"/></svg>`, section:'Overview'},
+  'exec-dashboard':    {label:'Executive Dashboard', icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/></svg>`, section:'Overview'},
+  'my-dashboard':      {label:'My Dashboard',        icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>`, section:'Overview'},
+  'backlog':           {label:'Backlog',              icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/></svg>`, section:'Planning'},
+  'sprints':           {label:'Sprint Board',         icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg>`, section:'Planning'},
+  'items':             {label:'All Work Items',       icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>`, section:'Work Items', badge:'items'},
+  'kanban':            {label:'Kanban Board',         icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125Z"/></svg>`, section:'Work Items'},
+  'my-work':           {label:'My Work',              icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>`, section:'Work Items', badge:'my'},
+  'submit-request':    {label:'Submit Request',       icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5"/></svg>`, section:'Create'},
+  'log-bug':           {label:'Log Bug',              icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>`, section:'Create'},
+  'bugs':              {label:'Bug Reports',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>`, section:'Reports', badge:'bugs'},
+  'requests':          {label:'Requests',             icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z"/></svg>`, section:'Reports', badge:'reqs'},
+  'service-requests':  {label:'Service Requests',     icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 6v.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V6m12 0 .867-1.732A1.875 1.875 0 0 0 15.232 3H8.768a1.875 1.875 0 0 0-1.635.955L6.268 6m10.232 0H6.768m0 0L6 16.5h12L17.232 6"/></svg>`, section:'IT Support', badge:'service'},
+  'test-plans':        {label:'Test Plans',           icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1 1-.26 2.28-1.52 1.86l-1.536-.525A6.75 6.75 0 0 0 12 17.25a6.75 6.75 0 0 0-4.144 1.387l-1.537.525c-1.26.42-2.52-.86-1.52-1.86L5 14.5"/></svg>`, section:'Quality'},
+  'pipelines':         {label:'Pipelines',            icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11.42 15.17 17.25 21A2.652 2.652 0 0 0 21 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766m-3.704 3.796L6.498 12.83a1.125 1.125 0 0 1 .83-1.883H9m0-3.428c0-1.418.958-2.597 2.358-2.86A8.25 8.25 0 0 1 21 9.75v.3m0 0c0 2.534-.617 4.907-1.672 7.027M9 3.75H6.498a1.125 1.125 0 0 0-.83 1.883l1.654 1.654"/></svg>`, section:'DevOps'},
+  'approvals':         {label:'Approvals',            icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"/></svg>`, section:'Workflow', badge:'approvals'},
+  'finance-requests':  {label:'Finance Requests',     icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"/></svg>`, section:'Finance'},
+  'hr-requests':       {label:'HR Requests',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>`, section:'Human Resources'},
+  'reports':           {label:'Reports',              icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>`, section:'Insights'},
+  'team':              {label:'Team',                 icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>`, section:'Insights'},
+  'settings':          {label:'Settings',             icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>`, section:'Admin'},
+};
+
+const A_COLORS = {'Chin Hui':'#6366f1','Ahmad Razif':'#10b981','Sarah Lim':'#f59e0b','David Tan':'#3b82f6','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Farah Nadia':'#f97316',"Dato' Razak":'#8b5cf6','System Admin':'#6366f1'};
+const DEPT_COLORS = {'IT':'#eef2ff','PMO':'#f3e8ff','Finance':'#f0fdf4','HR':'#fdf4ff','Business':'#eff6ff','IT Support':'#fff7ed','Management':'#faf5ff'};
+
+// ═══════════════ LIVE DATA (populated by Firestore or demo) ═══════════════
+let items = [], serviceItems = [], hrItems = [], testCases = [], activities = [];
+let nextId = 20;
+let isOpen = false, openItemId = null;
+
+// ── Seed data (used for first-time setup & demo mode) ──────────────────────
+const SEED_ITEMS = [
+  {id:'FT-001',title:'Login button unresponsive on Safari iOS 17',type:'bug',priority:'critical',status:'in-progress',assignee:'Ahmad Razif',dept:'IT',created:'2026-05-10',sprint:'Sprint 12',points:5,desc:'Users on Safari iOS 17 cannot click the login button. Confirmed on multiple devices.',env:'Production',comments:[{author:'Ahmad Razif',text:'Investigating — JS event handler issue.',time:'2h ago'}]},
+  {id:'FT-002',title:'Add dark mode support across dashboard',type:'feature',priority:'high',status:'in-progress',assignee:'Chin Hui',dept:'IT',created:'2026-05-11',sprint:'Sprint 12',points:8,desc:'Implement a dark mode toggle for the entire dashboard.',env:'',comments:[]},
+  {id:'FT-003',title:'Export reports to Excel / CSV',type:'request',priority:'medium',status:'open',assignee:'Sarah Lim',dept:'Finance',created:'2026-05-12',sprint:'Backlog',points:3,desc:'Finance team needs to export monthly reports.',env:'',comments:[{author:'Sarah Lim',text:'Will start after current sprint.',time:'1d ago'}]},
+  {id:'FT-004',title:'Incorrect total on invoice #2041',type:'bug',priority:'high',status:'open',assignee:'David Tan',dept:'Finance',created:'2026-05-13',sprint:'Sprint 12',points:3,desc:'Invoice #2041 shows wrong subtotal. Expected RM 1,200 but shows RM 1,020.',env:'Production',comments:[]},
+  {id:'FT-005',title:'User role management — add custom roles',type:'feature',priority:'medium',status:'review',assignee:'Nurul Ain',dept:'IT',created:'2026-05-14',sprint:'Sprint 12',points:5,desc:'Allow admins to create custom roles with granular permissions.',env:'',comments:[{author:'Nurul Ain',text:'Draft done, needs UX review.',time:'3h ago'}]},
+  {id:'FT-006',title:'API response timeout on bulk operations',type:'bug',priority:'critical',status:'open',assignee:'Ahmad Razif',dept:'IT',created:'2026-05-15',sprint:'Sprint 12',points:8,desc:'Bulk update API times out when processing > 500 records.',env:'Production',comments:[]},
+  {id:'FT-007',title:'Integrate Google Calendar for task due dates',type:'request',priority:'low',status:'open',assignee:'Sarah Lim',dept:'IT',created:'2026-05-15',sprint:'Backlog',points:5,desc:'Sync task due dates to Google Calendars.',env:'',comments:[]},
+  {id:'FT-008',title:'Dashboard KPI cards not loading on mobile',type:'bug',priority:'high',status:'done',assignee:'Chin Hui',dept:'IT',created:'2026-05-08',sprint:'Sprint 12',points:3,desc:'KPI cards empty on screen width < 480px.',env:'Production',comments:[{author:'Chin Hui',text:'Fixed — pushed to prod.',time:'2d ago'}]},
+  {id:'FT-009',title:'Notification email not sent on status change',type:'bug',priority:'medium',status:'done',assignee:'David Tan',dept:'IT',created:'2026-05-09',sprint:'Sprint 12',points:2,desc:'Email notification job not triggered.',env:'Production',comments:[]},
+  {id:'FT-010',title:'Add Kanban board view for project items',type:'feature',priority:'high',status:'done',assignee:'Chin Hui',dept:'IT',created:'2026-05-07',sprint:'Sprint 12',points:5,desc:'Implement Kanban view.',env:'',comments:[]},
+  {id:'FT-011',title:'Batch assign tasks to team members',type:'request',priority:'medium',status:'open',assignee:'Nurul Ain',dept:'IT',created:'2026-05-16',sprint:'Backlog',points:3,desc:'Allow batch-assign tasks.',env:'',comments:[]},
+  {id:'FT-012',title:'File upload size limit not enforced',type:'bug',priority:'medium',status:'in-progress',assignee:'Ahmad Razif',dept:'IT',created:'2026-05-17',sprint:'Sprint 12',points:2,desc:'Users can upload files over 10MB.',env:'Production',comments:[]},
+  {id:'FT-013',title:'Redesign onboarding flow for new users',type:'feature',priority:'low',status:'done',assignee:'Sarah Lim',dept:'IT',created:'2026-05-06',sprint:'Sprint 12',points:8,desc:'3-step onboarding wizard.',env:'',comments:[]},
+  {id:'FT-014',title:'Support multi-language (Bahasa Malaysia)',type:'request',priority:'low',status:'open',assignee:'Nurul Ain',dept:'IT',created:'2026-05-18',sprint:'Backlog',points:13,desc:'Add BM language.',env:'',comments:[]},
+  {id:'FT-015',title:'Monthly payroll report automation',type:'request',priority:'high',status:'open',assignee:'Lee Wei Hong',dept:'Finance',created:'2026-05-14',sprint:'Backlog',points:5,desc:'Automate monthly payroll report.',env:'',amount:'RM 5,000',comments:[],approvalStatus:'pending'},
+  {id:'FT-016',title:'Purchase order approval workflow',type:'request',priority:'medium',status:'in-progress',assignee:'Lee Wei Hong',dept:'Finance',created:'2026-05-12',sprint:'Sprint 12',points:3,desc:'PO approval workflow.',env:'',amount:'RM 12,000',comments:[],approvalStatus:'approved'},
+  {id:'FT-017',title:'Employee onboarding checklist system',type:'feature',priority:'high',status:'open',assignee:'Farah Nadia',dept:'HR',created:'2026-05-13',sprint:'Backlog',points:8,desc:'Digital onboarding checklist for new hires.',env:'',comments:[],approvalStatus:'pending'},
+  {id:'FT-018',title:'Annual leave balance integration',type:'request',priority:'medium',status:'open',assignee:'Farah Nadia',dept:'HR',created:'2026-05-15',sprint:'Backlog',points:5,desc:'Sync leave balances with HR system.',env:'',comments:[],approvalStatus:'pending'},
+  {id:'FT-019',title:'Epic: Customer Portal Revamp',type:'epic',priority:'high',status:'in-progress',assignee:'Chin Hui',dept:'IT',created:'2026-05-01',sprint:'Sprint 12',points:34,desc:'Full revamp of customer portal.',env:'',comments:[]},
+];
+const SEED_SERVICE = [
+  {id:'SR-001',title:'VPN access request for remote work',category:'Access',priority:'medium',status:'open',requester:'Lee Wei Hong',created:'2026-05-20'},
+  {id:'SR-002',title:'New laptop setup for onboarding staff',category:'Hardware',priority:'high',status:'in-progress',requester:'Farah Nadia',created:'2026-05-19'},
+  {id:'SR-003',title:'Microsoft 365 license renewal',category:'Software',priority:'high',status:'open',requester:'Chin Hui',created:'2026-05-18'},
+  {id:'SR-004',title:'Reset MFA for user account',category:'Access',priority:'low',status:'done',requester:"Dato' Razak",created:'2026-05-17'},
+  {id:'SR-005',title:'Network printer not working in Finance',category:'Hardware',priority:'medium',status:'in-progress',requester:'Lee Wei Hong',created:'2026-05-16'},
+];
+const SEED_HR = [
+  {id:'HR-001',title:'Update employee handbook 2026',category:'Policy',employee:'All Staff',status:'open',created:'2026-05-15'},
+  {id:'HR-002',title:'Conduct Q2 performance reviews',category:'Performance',employee:'All Staff',status:'in-progress',created:'2026-05-10'},
+  {id:'HR-003',title:'New hire orientation — June batch',category:'Onboarding',employee:'New Hires',status:'open',created:'2026-05-18'},
+  {id:'HR-004',title:'Resolve overtime pay dispute',category:'Payroll',employee:'Ahmad Razif',status:'done',created:'2026-05-08'},
+];
+const SEED_TC = [
+  {id:'TC-001',suite:'Login & Auth',title:'Valid login with correct credentials',expected:'Redirect to dashboard',result:'pass'},
+  {id:'TC-002',suite:'Login & Auth',title:'Invalid login shows error',expected:'Error toast shown',result:'pass'},
+  {id:'TC-003',suite:'Login & Auth',title:'Login button on Safari iOS 17',expected:'Button clickable',result:'fail'},
+  {id:'TC-004',suite:'Dashboard',title:'KPI cards load on desktop',expected:'All 4 cards visible',result:'pass'},
+  {id:'TC-005',suite:'Dashboard',title:'KPI cards load on mobile 375px',expected:'Cards stack vertically',result:'fail'},
+  {id:'TC-006',suite:'Invoice',title:'Invoice total calculation',expected:'Correct subtotal + tax',result:'fail'},
+  {id:'TC-007',suite:'API',title:'POST /api/items returns 201',expected:'Status 201',result:'pass'},
+  {id:'TC-008',suite:'API',title:'Bulk update >500 records',expected:'Completes within 30s',result:'fail'},
+];
+const SEED_ACTIVITIES = [
+  {text:'Ahmad Razif updated <b>FT-001</b> to In Progress',time:'2h ago',color:'#f59e0b',ts:Date.now()-7200000},
+  {text:'Chin Hui submitted new bug <b>FT-012</b>',time:'4h ago',color:'#ef4444',ts:Date.now()-14400000},
+  {text:'Nurul Ain moved <b>FT-005</b> to Review',time:'6h ago',color:'#9333ea',ts:Date.now()-21600000},
+  {text:'Sarah Lim commented on <b>FT-003</b>',time:'1d ago',color:'#3b82f6',ts:Date.now()-86400000},
+  {text:'David Tan resolved bug <b>FT-009</b>',time:'2d ago',color:'#10b981',ts:Date.now()-172800000},
+];
+
+const pipelines=[
+  {name:'CI — Build & Test',branch:'main',status:'success',duration:'4m 12s',trigger:'Push by Ahmad Razif',time:'2h ago'},
+  {name:'CD — Deploy Staging',branch:'develop',status:'running',duration:'Running…',trigger:'Merge PR #88',time:'20m ago'},
+  {name:'CI — Build & Test',branch:'feature/dark-mode',status:'success',duration:'3m 58s',trigger:'Push by Chin Hui',time:'4h ago'},
+  {name:'CD — Deploy Production',branch:'main',status:'failed',duration:'1m 03s',trigger:'Scheduled nightly',time:'8h ago'},
+  {name:'Security Scan',branch:'main',status:'success',duration:'6m 22s',trigger:'Scheduled weekly',time:'1d ago'},
+];
+
+// ═══════════════ STATE ═══════════════
+let currentUser=null,currentPage='',sortKey='created',sortDir=-1,currentItemsFilter='all',currentTypeFilter='';
+
+// ═══════════════ APP START ═══════════════
+function startApp() {
+  hideLoading();
+  initLogin();
+  // Restore last user from localStorage
+  const lastUid = localStorage.getItem('ft_user');
+  if (lastUid && USERS[lastUid]) {
+    loginAs(lastUid);
+  }
+}
+
+// ═══════════════ LOGIN ═══════════════
+function initLogin() {
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function doLogin(e) {
+  e.preventDefault();
+  const username = document.getElementById('login-username').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  if (!USERS[username]) {
+    errEl.textContent = 'Username not found. Please try again.';
+    errEl.style.display = 'block'; return;
+  }
+  if (CREDENTIALS[username] !== password) {
+    errEl.textContent = 'Incorrect password. Please try again.';
+    errEl.style.display = 'block'; return;
+  }
+  errEl.style.display = 'none';
+  loginAs(username);
+}
+
+function fillLogin(user, pass) {
+  document.getElementById('login-username').value = user;
+  document.getElementById('login-password').value = pass;
+  document.getElementById('login-error').style.display = 'none';
+}
+
+function loginAs(uid) {
+  currentUser=USERS[uid];
+  localStorage.setItem('ft_user', uid);
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').classList.add('visible');
+  buildSidebar();
+  navigate(currentUser.nav[0]);
+  refreshStats();
+  renderTeam();
+  renderWorkloadMini();
+  renderUserSettings();
+  updateTopbarBtn();
+}
+function toggleSidebar(){
+  const sb=document.getElementById('sidebar');
+  const bd=document.getElementById('sidebar-backdrop');
+  sb.classList.toggle('open');
+  bd.classList.toggle('open');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebar-backdrop').classList.remove('open');
+}
+
+function switchUser(){
+  localStorage.removeItem('ft_user');
+  document.getElementById('login-username') && (document.getElementById('login-username').value='');
+  document.getElementById('login-password') && (document.getElementById('login-password').value='');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('app').classList.remove('visible');
+  currentUser=null;
+}
+
+// ═══════════════ SIDEBAR ═══════════════
+function buildSidebar(){
+  const u=currentUser;
+  document.getElementById('su-name').textContent=u.name;
+  document.getElementById('su-role-label').textContent=u.role+' · '+u.dept;
+  const av=document.getElementById('su-avatar');
+  av.textContent=ini(u.name);av.style.background=u.color;
+  const sections={};
+  u.nav.forEach(key=>{const m=NAV_META[key];if(!m)return;if(!sections[m.section])sections[m.section]=[];sections[m.section].push({key,...m});});
+  let html='';
+  Object.entries(sections).forEach(([sec,navs])=>{
+    html+=`<div class="nav-section-label">${sec}</div>`;
+    navs.forEach(n=>{
+      const badge=n.badge?`<span class="nav-badge" id="nb-${n.badge}"></span>`:'';
+      html+=`<div class="nav-item" id="nav-${n.key}" onclick="navigate('${n.key}')">${n.icon}<span>${n.label}</span>${badge}</div>`;
+    });
+  });
+  document.getElementById('sidebar-nav').innerHTML=html;
+}
+
+// ═══════════════ NAVIGATE ═══════════════
+function navigate(p){
+  closeSidebar();
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  const pg=document.getElementById('page-'+p);if(pg)pg.classList.add('active');
+  const nav=document.getElementById('nav-'+p);if(nav)nav.classList.add('active');
+  currentPage=p;
+  const m=NAV_META[p];
+  document.getElementById('page-title').textContent=m?m.label:p;
+  updateTopbarBtn();
+  if(p==='dashboard'||p==='exec-dashboard')renderActivity();
+  if(p==='my-dashboard')renderMyDashboard();
+  if(p==='items')renderItemsTable();
+  if(p==='kanban')renderKanban();
+  if(p==='sprints')renderSprintBoard();
+  if(p==='backlog')renderBacklog();
+  if(p==='bugs')renderSubTable('bugs');
+  if(p==='requests')renderSubTable('requests');
+  if(p==='service-requests')renderSubTable('service');
+  if(p==='finance-requests')renderSubTable('finance');
+  if(p==='hr-requests')renderSubTable('hr');
+  if(p==='my-work')renderMyWork();
+  if(p==='pipelines')renderPipelines();
+  if(p==='approvals')renderApprovals();
+  if(p==='test-plans')renderTestCases();
+  closePanel();
+}
+function updateTopbarBtn(){
+  const btn=document.getElementById('tb-btn');
+  if(!btn)return;
+  const isForm=['submit-request','log-bug'].includes(currentPage);
+  btn.innerHTML=isForm?'← Back':`<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Item`;
+}
+function tbAction(){
+  if(['submit-request','log-bug'].includes(currentPage))navigate(currentUser.nav[0]);
+  else openItemModal();
+}
+
+// ═══════════════ ITEM MODAL ═══════════════
+function openItemModal(existingItem) {
+  const modal = document.getElementById('item-modal');
+  const overlay = document.getElementById('item-modal-overlay');
+  const editId = document.getElementById('modal-edit-id');
+  document.getElementById('modal-title').textContent = existingItem ? 'Edit Item' : 'New Item';
+  document.getElementById('modal-save-btn').textContent = existingItem ? 'Save Changes' : 'Create Item';
+  // Reset / populate
+  if (existingItem) {
+    editId.value = existingItem.id;
+    document.getElementById('modal-item-title').value = existingItem.title || '';
+    document.getElementById('modal-item-type').value = existingItem.type || 'task';
+    document.getElementById('modal-item-priority').value = existingItem.priority || 'medium';
+    document.getElementById('modal-item-status').value = existingItem.status || 'open';
+    document.getElementById('modal-item-sprint').value = existingItem.sprint || 'Backlog';
+    document.getElementById('modal-item-assignee').value = existingItem.assignee || '';
+    document.getElementById('modal-item-points').value = existingItem.points || '3';
+    document.getElementById('modal-item-dept').value = existingItem.dept || 'IT';
+    document.getElementById('modal-item-desc').value = existingItem.desc || '';
+  } else {
+    editId.value = '';
+    document.getElementById('item-modal-form').reset();
+  }
+  modal.style.display = 'block';
+  overlay.style.display = 'block';
+  document.getElementById('modal-item-title').focus();
+}
+
+function closeItemModal() {
+  document.getElementById('item-modal').style.display = 'none';
+  document.getElementById('item-modal-overlay').style.display = 'none';
+}
+
+async function saveModalItem(e) {
+  e.preventDefault();
+  const editId = document.getElementById('modal-edit-id').value;
+  const title = document.getElementById('modal-item-title').value.trim();
+  const type = document.getElementById('modal-item-type').value;
+  const priority = document.getElementById('modal-item-priority').value;
+  const status = document.getElementById('modal-item-status').value;
+  const sprint = document.getElementById('modal-item-sprint').value;
+  const assignee = document.getElementById('modal-item-assignee').value;
+  const points = parseInt(document.getElementById('modal-item-points').value);
+  const dept = document.getElementById('modal-item-dept').value;
+  const desc = document.getElementById('modal-item-desc').value.trim();
+
+  const btn = document.getElementById('modal-save-btn');
+  btn.textContent = 'Saving…'; btn.disabled = true;
+
+  if (editId) {
+    // Edit existing
+    await dbSave('items', editId, {title, type, priority, status, sprint, assignee, points, dept, desc});
+    await dbAddActivity(`${currentUser.name} updated item <b>${editId}</b>`, '#6366f1');
+    showToast('Item updated!');
+  } else {
+    // Create new
+    const idNum = String(nextId).padStart(3,'0');
+    const id = 'FT-' + idNum; nextId++;
+    const newItem = {
+      id, title, type, priority, status, sprint, assignee, points, dept, desc,
+      created: new Date().toISOString().slice(0,10),
+      comments: [],
+      approvalStatus: ['request','feature'].includes(type) ? 'pending' : null,
+      ts: Date.now()
+    };
+    await dbAdd('items', newItem);
+    await dbAddActivity(`${currentUser.name} created ${type} <b>${id}</b>`, '#10b981');
+    showToast('Item created!');
+  }
+
+  btn.textContent = editId ? 'Save Changes' : 'Create Item'; btn.disabled = false;
+  closeItemModal();
+}
+
+async function deleteItem(id) {
+  if (!confirm(`Delete item ${id}? This cannot be undone.`)) return;
+  if (isDemoMode) {
+    items = items.filter(i => i.id !== id);
+    reRenderCurrentPage(); refreshStats();
+  } else {
+    await db.collection('items').doc(id).delete();
+    await dbAddActivity(`${currentUser.name} deleted item <b>${id}</b>`, '#ef4444');
+  }
+  closePanel();
+  showToast('Item deleted.');
+}
+
+// ═══════════════ ACTIVITY ═══════════════
+function renderActivity(){
+  const timeAgo=ts=>{if(!ts)return'';const d=Date.now()-ts;if(d<60000)return'just now';if(d<3600000)return Math.floor(d/60000)+'m ago';if(d<86400000)return Math.floor(d/3600000)+'h ago';return Math.floor(d/86400000)+'d ago';};
+  ['activity-feed','exec-activity','my-activity'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.innerHTML=activities.map(a=>`
+      <div class="activity-item">
+        <div class="act-dot" style="background:${a.color}"></div>
+        <div style="flex:1"><div style="font-size:13px">${a.text}${isDemoMode?'':' <span style="font-size:10px;color:#6366f1;margin-left:4px">LIVE</span>'}</div><div class="muted mt1">${a.ts?timeAgo(a.ts):a.time}</div></div>
+      </div>`).join('');
+  });
+}
+
+// ═══════════════ MY DASHBOARD ═══════════════
+function renderMyDashboard(){
+  const u=currentUser;
+  const mine=items.filter(i=>i.assignee===u.name);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('my-assigned',mine.length);
+  set('my-inprog',mine.filter(i=>i.status==='in-progress').length);
+  set('my-review',mine.filter(i=>i.status==='review').length);
+  set('my-done',mine.filter(i=>i.status==='done').length);
+  renderActivity();
+  const tbody=document.getElementById('my-items-tbody');if(!tbody)return;
+  tbody.innerHTML=mine.slice(0,8).map(r=>`
+    <tr onclick="openPanel('${r.id}')">
+      <td><span class="td-id">${r.id}</span></td><td><span class="td-title">${r.title}</span></td>
+      <td>${typeBadge(r.type)}</td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td>
+    </tr>`).join('')||'<tr><td colspan="5"><div class="empty"><div class="empty-icon" style="font-size:28px">🎉</div><p>No items assigned</p></div></td></tr>';
+}
+
+// ═══════════════ STATS ═══════════════
+function refreshStats(){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+  set('st-total',items.length);
+  set('st-bugs',items.filter(i=>i.type==='bug'&&!['done','closed'].includes(i.status)).length);
+  set('st-pending',items.filter(i=>i.status==='open').length);
+  set('st-done',items.filter(i=>i.status==='done').length);
+  const nb=(id,v)=>{const el=document.getElementById('nb-'+id);if(el)el.textContent=v||'';};
+  nb('items',items.length);
+  nb('bugs',items.filter(i=>i.type==='bug'&&i.status!=='done').length);
+  nb('reqs',items.filter(i=>['request','feature'].includes(i.type)&&i.status==='open').length);
+  nb('my',currentUser?items.filter(i=>i.assignee===currentUser.name).length:0);
+  nb('service',serviceItems.filter(i=>i.status!=='done').length);
+  nb('approvals',items.filter(i=>i.approvalStatus==='pending').length);
+}
+function renderWorkloadMini(){
+  const el=document.getElementById('workload-mini');if(!el)return;
+  const names=['Chin Hui','Ahmad Razif','Sarah Lim','David Tan','Nurul Ain'];
+  el.innerHTML=names.map(n=>{
+    const count=items.filter(i=>i.assignee===n&&!['done','closed'].includes(i.status)).length;
+    const pct=Math.min(count*12,100);
+    const col=pct>70?'#ef4444':pct>40?'#f59e0b':'#10b981';
+    return`<div class="cap-row"><div style="width:80px;font-size:12px;font-weight:600">${n.split(' ')[0]}</div><div class="cap-bar-track"><div class="cap-bar-fill" style="width:${pct}%;background:${col}"></div></div><div style="font-size:12px;color:var(--text-muted);width:40px;text-align:right">${count}</div></div>`;
+  }).join('');
+}
+
+// ═══════════════ ITEMS TABLE ═══════════════
+function renderItemsTable(){
+  let data=[...items];
+  if(currentItemsFilter!=='all')data=data.filter(i=>i.status===currentItemsFilter);
+  if(currentTypeFilter)data=data.filter(i=>i.type===currentTypeFilter);
+  const q=document.getElementById('search-input').value.trim().toLowerCase();
+  if(q)data=data.filter(i=>i.title.toLowerCase().includes(q)||i.id.toLowerCase().includes(q));
+  if(currentUser&&!['admin','pm'].includes(currentUser.id)){
+    if(['dev','qa'].includes(currentUser.id))data=data.filter(i=>i.dept==='IT');
+    else if(currentUser.id==='finance')data=data.filter(i=>i.dept==='Finance');
+    else if(currentUser.id==='hr')data=data.filter(i=>i.dept==='HR');
+    else if(currentUser.id==='ba')data=data.filter(i=>['IT','Business'].includes(i.dept));
+  }
+  data.sort((a,b)=>{let va=a[sortKey]||'',vb=b[sortKey]||'';return va<vb?-sortDir:va>vb?sortDir:0;});
+  const tbody=document.getElementById('items-tbody');if(!tbody)return;
+  tbody.innerHTML=data.length?data.map(r=>`
+    <tr onclick="openPanel('${r.id}')">
+      <td><span class="td-id">${r.id}</span></td>
+      <td><span class="td-title">${r.title}</span></td>
+      <td>${typeBadge(r.type)}</td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td>
+      <td><div class="flex aic g2"><div class="av" style="background:${A_COLORS[r.assignee]||'#6366f1'}">${ini(r.assignee)}</div><span style="font-size:12px">${r.assignee}</span></div></td>
+      <td><span class="badge" style="background:${DEPT_COLORS[r.dept]||'#f1f5f9'};color:#475569">${r.dept}</span></td>
+      <td class="muted">${r.created}</td>
+    </tr>`).join(''):'<tr><td colspan="8"><div class="empty"><div class="empty-icon">📭</div><p>No items found</p></div></td></tr>';
+}
+function filterItems(f,btn){document.querySelectorAll('#items-filter-group .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentItemsFilter=f;renderItemsTable();}
+function filterByType(v){currentTypeFilter=v;renderItemsTable();}
+function sortT(k){if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}renderItemsTable();}
+function handleSearch(){if(currentPage==='items')renderItemsTable();}
+
+// ═══════════════ SUB TABLES ═══════════════
+function renderSubTable(type){
+  const cfgs={
+    bugs:{data:()=>items.filter(i=>i.type==='bug'),tbody:'bugs-tbody',cols:r=>`<td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td><td><span class="badge b-medium">${r.env||'—'}</span></td><td>${r.assignee}</td><td class="muted">${r.created}</td>`},
+    requests:{data:()=>items.filter(i=>['request','feature','story','task'].includes(i.type)),tbody:'req-tbody',cols:r=>`<td>${typeBadge(r.type)}</td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td><td><span class="badge" style="background:${DEPT_COLORS[r.dept]||'#f1f5f9'};color:#475569">${r.dept}</span></td><td>${r.assignee}</td><td class="muted">${r.created}</td>`},
+    service:{data:()=>serviceItems,tbody:'service-tbody',cols:r=>`<td><span class="badge b-service">${r.category}</span></td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td><td>${r.requester}</td><td class="muted">${r.created}</td>`},
+    finance:{data:()=>items.filter(i=>i.dept==='Finance'),tbody:'finance-tbody',cols:r=>`<td style="font-weight:600">${r.amount||'—'}</td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td><td class="muted">${r.created}</td><td>${r.approvalStatus?`<span class="badge b-${r.approvalStatus}">${r.approvalStatus}</span>`:'—'}</td>`},
+    hr:{data:()=>hrItems,tbody:'hr-tbody',cols:r=>`<td><span class="badge b-feature">${r.category}</span></td><td>${r.employee}</td><td>${statusBadge(r.status)}</td><td class="muted">${r.created}</td>`},
+  };
+  const cfg=cfgs[type];if(!cfg)return;
+  const pageId=type==='service'?'service-requests':type==='finance'?'finance-requests':type==='hr'?'hr-requests':type;
+  const activeBtn=document.querySelector(`#page-${pageId} .filter-btn.active`);
+  const f=activeBtn?activeBtn.textContent.toLowerCase().replace(/all.*/,'all').replace('resolved','done').replace('pending','open').trim():'all';
+  let data=cfg.data();
+  if(f!=='all')data=data.filter(i=>i.status===f);
+  const tbody=document.getElementById(cfg.tbody);if(!tbody)return;
+  tbody.innerHTML=data.length?data.map(r=>`
+    <tr onclick="openPanel('${r.id}')">
+      <td><span class="td-id">${r.id}</span></td>
+      <td><span class="td-title">${r.title}</span></td>
+      ${cfg.cols(r)}
+    </tr>`).join(''):'<tr><td colspan="8"><div class="empty"><div class="empty-icon">📭</div><p>No items</p></div></td></tr>';
+}
+function filterSub(type,f,btn){
+  const pageId=type==='service'?'service-requests':type==='finance'?'finance-requests':type==='hr'?'hr-requests':type;
+  document.querySelectorAll(`#page-${pageId} .filter-btn`).forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');renderSubTable(type);
+}
+
+// ═══════════════ KANBAN ═══════════════
+function renderKanban(){
+  const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
+  let data=[...items];
+  if(currentUser&&!['admin','pm'].includes(currentUser.id)){
+    if(['dev','qa','support'].includes(currentUser.id))data=data.filter(i=>i.assignee===currentUser.name);
+  }
+  document.getElementById('kanban-board').innerHTML=cols.map(col=>{
+    const ci=data.filter(i=>i.status===col.k);
+    return`<div class="kanban-col">
+      <div class="kanban-col-header"><div class="col-dot" style="background:${col.c}"></div><span class="col-title">${col.l}</span><span class="col-count">${ci.length}</span></div>
+      <div class="kanban-items">${ci.map(item=>`
+        <div class="kanban-card" onclick="openPanel('${item.id}')">
+          <div class="kc-title">${item.title}</div>
+          <div class="kc-meta"><span class="kc-id">${item.id}</span>${typeBadge(item.type)}${prioBadge(item.priority)}<div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}" title="${item.assignee}">${ini(item.assignee)}</div></div>
+        </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ SPRINT BOARD ═══════════════
+function renderSprintBoard(){
+  const sprintItems=items.filter(i=>i.sprint==='Sprint 12');
+  const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
+  document.getElementById('sprint-board').innerHTML=cols.map(col=>{
+    const ci=sprintItems.filter(i=>i.status===col.k);
+    return`<div class="kanban-col">
+      <div class="kanban-col-header"><div class="col-dot" style="background:${col.c}"></div><span class="col-title">${col.l}</span><span class="col-count">${ci.length}</span></div>
+      <div class="kanban-items">${ci.map(item=>`
+        <div class="kanban-card" onclick="openPanel('${item.id}')">
+          <div class="kc-title">${item.title}</div>
+          <div class="kc-meta"><span class="kc-id">${item.id}</span>${typeBadge(item.type)}<span style="font-size:10px;background:#eef2ff;color:#4338ca;padding:1px 5px;border-radius:4px;font-weight:700">${item.points}pt</span><div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}" title="${item.assignee}">${ini(item.assignee)}</div></div>
+        </div>`).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ BACKLOG ═══════════════
+let blFilterVal='all';
+function blFilter(f,btn){document.querySelectorAll('#page-backlog .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');blFilterVal=f;renderBacklog();}
+function renderBacklog(){
+  const sprintData=items.filter(i=>i.sprint==='Sprint 12'&&(blFilterVal==='all'||i.type===blFilterVal));
+  const backlogData=items.filter(i=>i.sprint==='Backlog'&&(blFilterVal==='all'||i.type===blFilterVal));
+  const typeIcon={epic:'<span style="color:#d97706;font-size:12px">◆</span>',feature:'<span style="color:#9333ea;font-size:12px">★</span>',story:'<span style="color:#3b82f6;font-size:12px">▣</span>',task:'<span style="color:#10b981;font-size:12px">▸</span>',bug:'<span style="color:#ef4444;font-size:12px">✕</span>',request:'<span style="color:#6366f1;font-size:12px">↗</span>'};
+  document.getElementById('bl-sprint-body').innerHTML=sprintData.map(r=>`
+    <div class="backlog-item" onclick="openPanel('${r.id}')">
+      <span class="bi-type">${typeIcon[r.type]||'▸'}</span>
+      <span class="td-id" style="width:70px">${r.id}</span>
+      <span class="bi-title">${r.title}</span>
+      ${prioBadge(r.priority)} ${statusBadge(r.status)}
+      <div class="av" style="background:${A_COLORS[r.assignee]||'#6366f1'};margin-left:8px" title="${r.assignee}">${ini(r.assignee)}</div>
+      <span class="bi-pts">${r.points}pt</span>
+    </div>`).join('')||'<div class="empty" style="padding:20px"><p>No sprint items</p></div>';
+  document.getElementById('bl-unassigned-count').textContent=backlogData.length+' items';
+  document.getElementById('bl-unassigned-body').innerHTML=backlogData.map(r=>`
+    <div class="backlog-item" onclick="openPanel('${r.id}')">
+      <span class="bi-type">${typeIcon[r.type]||'▸'}</span>
+      <span class="td-id" style="width:70px">${r.id}</span>
+      <span class="bi-title">${r.title}</span>
+      ${prioBadge(r.priority)} ${statusBadge(r.status)}
+      <div class="av" style="background:${A_COLORS[r.assignee]||'#6366f1'};margin-left:8px" title="${r.assignee}">${ini(r.assignee)}</div>
+      <span class="bi-pts">${r.points}pt</span>
+    </div>`).join('');
+}
+function toggleSection(id){const el=document.getElementById(id);const arrow=document.getElementById(id+'-arrow');const hidden=el.style.display==='none';el.style.display=hidden?'':'none';if(arrow)arrow.textContent=hidden?'▾':'▸';}
+
+// ═══════════════ MY WORK ═══════════════
+function renderMyWork(){
+  if(!currentUser)return;
+  const mine=items.filter(i=>i.assignee===currentUser.name);
+  const row=(r,extra)=>`<tr onclick="openPanel('${r.id}')"><td><span class="td-id">${r.id}</span></td><td><span class="td-title">${r.title}</span></td><td>${typeBadge(r.type)}</td><td>${prioBadge(r.priority)}</td><td class="muted">${extra}</td></tr>`;
+  const empty=cols=>`<tr><td colspan="${cols}"><div class="empty" style="padding:20px"><p>All clear!</p></div></td></tr>`;
+  document.getElementById('mw-inprog').innerHTML=mine.filter(i=>i.status==='in-progress').map(r=>row(r,r.sprint)).join('')||empty(5);
+  document.getElementById('mw-open').innerHTML=mine.filter(i=>i.status==='open').map(r=>row(r,r.sprint)).join('')||empty(5);
+  document.getElementById('mw-done').innerHTML=mine.filter(i=>i.status==='done').map(r=>`<tr onclick="openPanel('${r.id}')"><td><span class="td-id">${r.id}</span></td><td><span class="td-title">${r.title}</span></td><td>${typeBadge(r.type)}</td><td class="muted">${r.created}</td></tr>`).join('')||empty(4);
+}
+
+// ═══════════════ PIPELINES ═══════════════
+function renderPipelines(){
+  const statusMap={success:{c:'#10b981',label:'Passed'},running:{c:'#f59e0b',label:'Running'},failed:{c:'#ef4444',label:'Failed'}};
+  document.getElementById('pipeline-list').innerHTML=pipelines.map(p=>{
+    const s=statusMap[p.status]||{c:'#94a3b8',label:'Unknown'};
+    return`<div class="pipeline-row">
+      <div class="pl-status" style="background:${s.c}"></div>
+      <div><div class="pl-name">${p.name}</div><div class="pl-branch" style="font-size:12px;color:var(--text-muted);font-family:monospace">${p.branch}</div></div>
+      <div class="mla" style="text-align:right">
+        <div style="font-size:12px;font-weight:600;color:${s.c}">${s.label}</div>
+        <div class="pl-trigger">${p.trigger} · ${p.duration}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-left:10px" onclick="showToast('Pipeline re-triggered')">Re-run</button>
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════ APPROVALS ═══════════════
+function renderApprovals(){
+  const pending=items.filter(i=>i.approvalStatus==='pending');
+  const el=document.getElementById('approvals-list');if(!el)return;
+  if(!pending.length){el.innerHTML='<div class="empty"><div class="empty-icon">🎉</div><p>No pending approvals</p></div>';return;}
+  el.innerHTML=pending.map(item=>`
+    <div class="approval-card">
+      <div class="approval-card-header">
+        <div style="flex:1"><div style="font-size:14px;font-weight:700">${item.title}</div><div class="muted mt1">${item.id} · ${item.assignee} · ${item.created}</div></div>
+        ${prioBadge(item.priority)}
+      </div>
+      <div class="approval-meta">${typeBadge(item.type)}<span class="badge" style="background:${DEPT_COLORS[item.dept]||'#f1f5f9'};color:#475569">${item.dept}</span>${item.amount?`<span class="badge b-open">${item.amount}</span>`:''}</div>
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px">${item.desc}</div>
+      <div class="approval-actions">
+        <button class="btn btn-success btn-sm" onclick="approveItem('${item.id}','approved')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.75 6 6 9-13.5"/></svg> Approve
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="approveItem('${item.id}','rejected')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg> Reject
+        </button>
+        <button class="btn btn-ghost btn-sm" onclick="openPanel('${item.id}')">View Details</button>
+      </div>
+    </div>`).join('');
+}
+async function approveItem(id,decision){
+  const update={approvalStatus:decision,status:decision==='approved'?'in-progress':'closed'};
+  await dbSave('items',id,update);
+  const item=items.find(i=>i.id===id);
+  if(item&&isDemoMode){item.approvalStatus=decision;item.status=update.status;}
+  await dbAddActivity(`${currentUser.name} ${decision} request <b>${id}</b>`,decision==='approved'?'#10b981':'#ef4444');
+  refreshStats();if(!isDemoMode)return; // firestore will trigger re-render
+  renderApprovals();
+  showToast(decision==='approved'?'Request approved!':'Request rejected');
+}
+
+// ═══════════════ TEST CASES ═══════════════
+function renderTestCases(){
+  const el=document.getElementById('test-cases-table');if(!el)return;
+  el.innerHTML=`<table><thead><tr><th>ID</th><th>Suite</th><th>Test Case</th><th>Expected</th><th>Result</th><th>Action</th></tr></thead>
+  <tbody>${testCases.map(tc=>`
+    <tr>
+      <td><span class="td-id">${tc.id}</span></td>
+      <td><span class="badge b-feature">${tc.suite}</span></td>
+      <td style="font-weight:600;max-width:220px">${tc.title}</td>
+      <td class="muted" style="font-size:12px">${tc.expected}</td>
+      <td id="tcr-${tc.id}">${tcResultBadge(tc.result)}</td>
+      <td>
+        <button class="tc-btn tc-pass" onclick="setTCResult('${tc.id}','pass')">Pass</button>
+        <button class="tc-btn tc-fail" onclick="setTCResult('${tc.id}','fail')" style="margin:0 4px">Fail</button>
+        <button class="tc-btn tc-blocked" onclick="setTCResult('${tc.id}','blocked')">Block</button>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+function tcResultBadge(r){const m={pass:'<span class="badge b-pass">Pass</span>',fail:'<span class="badge b-fail">Fail</span>',blocked:'<span class="badge b-blocked2">Blocked</span>','':`<span class="badge b-closed">Not Run</span>`};return m[r]||m[''];}
+async function setTCResult(id,result){
+  await dbSave('testCases',id,{result});
+  const tc=testCases.find(t=>t.id===id);if(tc)tc.result=result;
+  const el=document.getElementById('tcr-'+id);if(el)el.innerHTML=tcResultBadge(result);
+  showToast('Test case marked as '+result);
+}
+function showTestTab(tab,btn){
+  ['suites','cases','runs'].forEach(t=>{const el=document.getElementById('test-'+t);if(el)el.style.display=t===tab?'':'none';});
+  document.querySelectorAll('#page-test-plans .stab').forEach(b=>b.classList.remove('active'));
+  if(btn&&btn.classList)btn.classList.add('active');
+  if(tab==='cases')renderTestCases();
+}
+function showReportTab(tab,btn){
+  ['velocity','burndown','cumulative'].forEach(t=>{const el=document.getElementById('report-'+t);if(el)el.style.display=t===tab?'':'none';});
+  document.querySelectorAll('#page-reports .stab').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+}
+
+// ═══════════════ TEAM ═══════════════
+function renderTeam(){
+  const el=document.getElementById('team-grid');if(!el)return;
+  el.innerHTML=Object.values(USERS).filter(u=>u.id!=='admin'&&u.id!=='mgmt').map(u=>{
+    const assigned=items.filter(i=>i.assignee===u.name).length;
+    const done=items.filter(i=>i.assignee===u.name&&i.status==='done').length;
+    return`<div class="team-card">
+      <div class="team-card-av" style="background:${u.color}">${ini(u.name)}</div>
+      <div class="team-card-name">${u.name}</div>
+      <div class="team-card-role">${u.role}</div>
+      <div class="team-card-dept" style="background:${DEPT_COLORS[u.dept]||'#f1f5f9'};color:#475569">${u.dept}</div>
+      <div class="team-stats">
+        <div class="ts-item"><div class="ts-val">${assigned}</div><div class="ts-label">Assigned</div></div>
+        <div class="ts-item"><div class="ts-val" style="color:#10b981">${done}</div><div class="ts-label">Done</div></div>
+        <div class="ts-item"><div class="ts-val" style="color:#f59e0b">${assigned-done}</div><div class="ts-label">Open</div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderUserSettings(){
+  const el=document.getElementById('users-settings-tbody');if(!el)return;
+  el.innerHTML=Object.values(USERS).map(u=>`
+    <tr><td><div class="flex aic g2"><div class="av" style="background:${u.color}">${ini(u.name)}</div>${u.name}</div></td>
+    <td><span class="badge b-feature">${u.role}</span></td><td>${u.dept}</td>
+    <td><span class="badge b-done">Active</span></td></tr>`).join('');
+}
+
+// ═══════════════ PANEL ═══════════════
+function openPanel(id){
+  isOpen=true;openItemId=id;
+  const item=items.find(i=>i.id===id)||serviceItems.find(i=>i.id===id)||hrItems.find(i=>i.id===id);
+  if(!item)return;
+  document.getElementById('panel-id').textContent=item.id;
+  document.getElementById('panel-title').textContent=item.title;
+  const canEdit=currentUser&&!['mgmt'].includes(currentUser.id);
+  const statusBtns=canEdit?`
+    <div class="pf">
+      <div class="pfl">Change Status</div>
+      <div class="flex g2" style="flex-wrap:wrap;margin-top:4px">
+        ${['open','in-progress','review','done','closed'].map(s=>`<button class="btn btn-ghost btn-sm" style="${item.status===s?'background:var(--accent);color:#fff;border-color:var(--accent)':''}" onclick="changeStatus('${id}','${s}')">${s.replace('-',' ')}</button>`).join('')}
+      </div>
+    </div>`:'';
+  document.getElementById('pb').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+      <div class="pf"><div class="pfl">Status</div>${statusBadge(item.status||'open')}</div>
+      <div class="pf"><div class="pfl">Priority</div>${prioBadge(item.priority||'medium')}</div>
+      <div class="pf"><div class="pfl">Type</div>${typeBadge(item.type||'task')}</div>
+      <div class="pf"><div class="pfl">Assignee</div><div class="flex aic g2"><div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}">${ini(item.assignee||'?')}</div>${item.assignee||'—'}</div></div>
+      ${item.dept?`<div class="pf"><div class="pfl">Department</div><span class="badge" style="background:${DEPT_COLORS[item.dept]||'#f1f5f9'};color:#475569">${item.dept}</span></div>`:''}
+      ${item.sprint?`<div class="pf"><div class="pfl">Sprint</div><span style="font-size:13px;font-weight:600">${item.sprint}</span></div>`:''}
+      ${item.points?`<div class="pf"><div class="pfl">Points</div><span style="font-size:16px;font-weight:700">${item.points}</span></div>`:''}
+      ${item.amount?`<div class="pf"><div class="pfl">Amount</div><span style="font-size:14px;font-weight:700;color:#10b981">${item.amount}</span></div>`:''}
+      <div class="pf"><div class="pfl">Created</div><span style="font-size:13px">${item.created||'—'}</span></div>
+    </div>
+    ${statusBtns}
+    <div class="divider"></div>
+    <div class="pf"><div class="pfl">Description</div><div style="font-size:13px;line-height:1.6;color:var(--text-muted);margin-top:4px">${item.desc||'No description.'}</div></div>
+    ${item.env?`<div class="pf"><div class="pfl">Environment</div><span class="badge b-medium">${item.env}</span></div>`:''}
+    <div class="p-section">Comments (${(item.comments||[]).length})</div>
+    <div id="comment-list">
+      ${(item.comments||[]).length?item.comments.map(c=>`
+        <div class="comment-item">
+          <div class="av" style="background:${A_COLORS[c.author]||'#6366f1'};width:26px;height:26px;font-size:10px">${ini(c.author)}</div>
+          <div><div class="ca">${c.author}</div><div class="ct">${c.text}</div><div class="ctm">${c.time}</div></div>
+        </div>`).join(''):'<div class="muted" style="font-size:13px;padding:6px 0">No comments yet.</div>'}
+    </div>
+    ${canEdit?`<div class="comment-box">
+      <input class="ci" id="ci-input" placeholder="Add a comment…" onkeydown="if(event.key==='Enter')addComment('${id}')"/>
+      <button class="btn btn-primary btn-sm" onclick="addComment('${id}')">Post</button>
+    </div>`:''}`;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+function closePanel(){isOpen=false;openItemId=null;document.getElementById('overlay').classList.remove('open');document.getElementById('panel').classList.remove('open');}
+function editPanelItem(){const item=items.find(i=>i.id===openItemId);if(item){closePanel();openItemModal(item);}}
+function deletePanelItem(){if(openItemId)deleteItem(openItemId);}
+
+async function changeStatus(id,status){
+  await dbSave('items',id,{status});
+  if(isDemoMode){const item=items.find(i=>i.id===id);if(item)item.status=status;openPanel(id);refreshStats();reRenderCurrentPage();}
+  await dbAddActivity(`${currentUser.name} changed <b>${id}</b> → ${status}`,status==='done'?'#10b981':status==='in-progress'?'#f59e0b':'#6366f1');
+  showToast('Status updated: '+status.replace('-',' '));
+}
+
+async function addComment(id){
+  const inp=document.getElementById('ci-input');
+  const text=inp.value.trim();if(!text)return;
+  const item=items.find(i=>i.id===id);if(!item)return;
+  if(!item.comments)item.comments=[];
+  const comment={author:currentUser.name,text,time:'just now'};
+  item.comments=[...item.comments,comment];
+  await dbSave('items',id,{comments:item.comments});
+  await dbAddActivity(`${currentUser.name} commented on <b>${id}</b>`,'#3b82f6');
+  if(isDemoMode)openPanel(id);
+  showToast('Comment added');
+}
+
+// ═══════════════ SUBMIT ═══════════════
+async function submitItem(e,type){
+  e.preventDefault();
+  const isBug=type==='bug';
+  const title=document.getElementById(isBug?'bug-title':'req-title').value.trim();
+  const desc=document.getElementById(isBug?'bug-desc':'req-desc').value.trim();
+  const priority=document.getElementById(isBug?'bug-priority':'req-priority').value;
+  const assignee=document.getElementById(isBug?'bug-assignee':'req-assignee').value;
+  const itemType=isBug?'bug':document.getElementById('req-type').value;
+  const dept=isBug?'IT':(document.getElementById('req-dept')?document.getElementById('req-dept').value:currentUser.dept);
+
+  // Generate ID
+  const idNum = String(nextId).padStart(3,'0');
+  const id='FT-'+idNum; nextId++;
+
+  const newItem={id,title,type:itemType,priority,status:'open',assignee,dept,
+    created:new Date().toISOString().slice(0,10),sprint:'Backlog',points:3,desc,
+    env:isBug?(document.getElementById('bug-env')?document.getElementById('bug-env').value:''):'',
+    comments:[],
+    approvalStatus:['request','feature'].includes(itemType)?'pending':null,
+    ts:Date.now()
+  };
+
+  showToast('Saving…');
+  await dbAdd('items',newItem);
+  await dbAddActivity(`${currentUser.name} submitted ${isBug?'bug':'request'} <b>${id}</b>`,isBug?'#ef4444':'#6366f1');
+  resetF(isBug?'bug':'req');
+  showToast(isBug?'Bug logged!':'Request submitted!');
+  setTimeout(()=>navigate(isBug?'bugs':'requests'),600);
+}
+function resetF(p){['title','desc'].forEach(f=>{const el=document.getElementById(p+'-'+f);if(el)el.value='';});}
+
+// ═══════════════ BADGE HELPERS ═══════════════
+const bugSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>`;
+const inboxSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z"/></svg>`;
+const sparkSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15.59 14.37a6 6 0 0 1-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 0 0 6.16-12.12A14.98 14.98 0 0 0 9.631 8.41m5.96 5.96a14.926 14.926 0 0 1-5.841 2.58m-.119-8.54a6 6 0 0 0-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 0 0-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 0 1-2.448-2.448 14.9 14.9 0 0 1 .06-.312m-2.24 2.39a4.493 4.493 0 0 0-1.757 4.306 4.493 4.493 0 0 0 4.306-1.758M16.5 9a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg>`;
+const tagSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L9.568 3Z M6 6h.008v.008H6V6Z"/></svg>`;
+const docSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>`;
+const boltSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75Z"/></svg>`;
+const warnSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg>`;
+const ticketSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 6v.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V6m12 0 .867-1.732A1.875 1.875 0 0 0 15.232 3H8.768a1.875 1.875 0 0 0-1.635.955L6.268 6m10.232 0H6.768m0 0L6 16.5h12L17.232 6"/></svg>`;
+const checkSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.75 6 6 9-13.5"/></svg>`;
+const xSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg>`;
+function typeBadge(v){
+  const m={bug:'Bug',request:'Request',feature:'Feature',task:'Task',story:'Story',epic:'Epic',incident:'Incident',service:'Service'};
+  const c={bug:'b-bug',request:'b-request',feature:'b-feature',task:'b-task',story:'b-story',epic:'b-epic',incident:'b-incident',service:'b-service'};
+  const icons={bug:bugSvg,request:inboxSvg,feature:sparkSvg,task:tagSvg,story:docSvg,epic:boltSvg,incident:warnSvg,service:ticketSvg};
+  return`<span class="badge ${c[v]||'b-task'}">${icons[v]||''} ${m[v]||v}</span>`;
+}
+function prioBadge(v){
+  const m={critical:'Critical',high:'High',medium:'Medium',low:'Low'};
+  return`<span class="badge b-${v||'low'}"><span class="prio-dot pd-${v||'low'}"></span>${m[v]||v}</span>`;
+}
+function statusBadge(s){
+  const m={open:'Open','in-progress':'In Progress',review:'Review',done:'Done',closed:'Closed',blocked:'Blocked'};
+  const dots={open:'#3b82f6','in-progress':'#d97706',review:'#9333ea',done:'#10b981',closed:'#94a3b8',blocked:'#ef4444'};
+  return`<span class="badge b-${s||'open'}"><span class="sd" style="background:${dots[s]||'#94a3b8'}"></span>${m[s]||s}</span>`;
+}
+function ini(n){if(!n)return'?';return n.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ═══════════════ BOOT ═══════════════
+showSetup();
+</script>
+</body>
+</html>
