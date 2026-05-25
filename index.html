@@ -778,7 +778,7 @@ textarea.fc{resize:vertical;min-height:85px}
               <div class="fg full"><label>Expected vs Actual</label><textarea class="fc" id="bug-expected" placeholder="Expected: …&#10;Actual: …" style="min-height:65px"></textarea></div>
               <div class="fg"><label>Severity</label><select class="fc" id="bug-priority"><option value="low">Low — Cosmetic</option><option value="medium" selected>Medium — Functional</option><option value="high">High — Major Impact</option><option value="critical">Critical — Blocker</option></select></div>
               <div class="fg"><label>Environment</label><select class="fc" id="bug-env"><option>Production</option><option>Staging</option><option>UAT</option><option>Development</option></select></div>
-              <div class="fg"><label>Assign To</label><select class="fc" id="bug-assignee"><option>Ahmad Razif</option><option>Chin Hui</option><option>Sarah Lim</option><option>David Tan</option><option>Nurul Ain</option></select></div>
+              <div class="fg"><label>Assign To (IT)</label><select class="fc" id="bug-assignee"></select></div>
               <div class="fg"><label>Browser / Device</label><input class="fc" id="bug-browser" placeholder="e.g. Chrome 124, iPhone 15"/></div>
               <div class="fg"><label>Build / Version</label><input class="fc" id="bug-build" placeholder="e.g. v2.4.1"/></div>
             </div>
@@ -1705,6 +1705,17 @@ function populateProjectDropdown(selected) {
     projects.map(p => `<option value="${p.id}" ${p.id===selected?'selected':''}>${p.name}</option>`).join('');
 }
 
+function populateBugAssignee() {
+  const sel = document.getElementById('bug-assignee');
+  if (!sel) return;
+  const itMembers = Object.values(USERS).filter(u => u.dept === 'IT');
+  sel.innerHTML = '<option value="">— Unassigned —</option>' +
+    itMembers.map(u => `<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+  // Pre-select IT Mgr by default
+  const mgr = itMembers.find(u => u.isLead);
+  if (mgr) sel.value = mgr.name;
+}
+
 // ═══════════════ PROJECTS ═══════════════
 function openProjectModal() {
   document.getElementById('proj-modal').style.display = 'block';
@@ -1939,6 +1950,7 @@ function navigate(p){
   if(p==='sprints')renderSprintBoard();
   if(p==='backlog')renderBacklog();
   if(p==='bugs')renderSubTable('bugs');
+  if(p==='log-bug')populateBugAssignee();
   if(p==='requests')renderSubTable('requests');
   if(p==='service-requests')renderSubTable('service');
   if(p==='finance-requests')renderSubTable('finance');
@@ -2385,33 +2397,58 @@ function getWorkflowActions(item) {
   const s = item.status;
   const dept = currentUser.dept;
   const isLead = currentUser.isLead;
+  const isBug = item.type === 'bug';
   const id = item.id;
   let btns = [];
 
-  // Product team: review submitted requests
-  if (s === 'submitted' && dept === 'Product') {
-    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','product-review','Product team is reviewing this request.')">📋 Start Review</button>`);
+  // ── BUG WORKFLOW (bypasses Product review, goes direct to IT) ─────────────
+  if (isBug) {
+    // IT Lead/Mgr: pick up new bug and assign
+    if (s === 'submitted' && dept === 'IT') {
+      btns.push(`<button class="btn btn-sm" style="background:#6366f1;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','IT picked up bug and started fixing.')">🔧 Pick Up & Start Fix</button>`);
+    }
+    // IT Dev: mark fixed, send for verification
+    if (s === 'in-progress' && dept === 'IT') {
+      btns.push(`<button class="btn btn-sm" style="background:#8b5cf6;color:#fff;border:none" onclick="workflowAction('${id}','testing','Fix complete. Sent for QA verification.')">✅ Mark as Fixed → Verify</button>`);
+    }
+    // Product team or IT: verify the fix
+    if (s === 'testing' && (dept === 'Product' || dept === 'IT')) {
+      btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','done','Bug verified fixed and closed.')">✅ Verified Fixed → Close</button>`);
+      btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','Bug still present. Sent back to IT.')">🐛 Still Broken → Back to IT</button>`);
+    }
+    // Any lead can reject/close a bug
+    if (!['done','rejected'].includes(s) && isLead) {
+      btns.push(`<button class="btn btn-sm" style="background:#94a3b8;color:#fff;border:none" onclick="workflowAction('${id}','rejected','Bug closed / not reproducible.')">🚫 Close Bug</button>`);
+    }
   }
-  if (s === 'product-review' && dept === 'Product') {
-    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','it-queue','Product approved. Sent to IT queue.')">✅ Approve → Send to IT</button>`);
-    btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','rejected','Request rejected by Product team.')">❌ Reject</button>`);
-  }
-  // IT Lead: assign from queue
-  if (s === 'it-queue' && dept === 'IT' && isLead) {
-    btns.push(`<button class="btn btn-sm" style="background:#6366f1;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','IT Lead assigned to developer.')">🔧 Assign & Start Development</button>`);
-  }
-  // Developer: mark ready for testing
-  if (s === 'in-progress' && dept === 'IT') {
-    btns.push(`<button class="btn btn-sm" style="background:#8b5cf6;color:#fff;border:none" onclick="workflowAction('${id}','testing','Development complete. Ready for testing.')">🧪 Mark Ready for Testing</button>`);
-  }
-  // QA/Product: test pass or fail
-  if (s === 'testing' && (dept === 'IT' || dept === 'Product')) {
-    btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','done','Testing passed. Item completed.')">✅ Testing Passed → Done</button>`);
-    btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','Bug found during testing. Sent back to developer.')">🐛 Bug Found → Back to Dev</button>`);
-  }
-  // Any lead can put on hold
-  if (!['done','rejected'].includes(s) && isLead && btns.length === 0) {
-    btns.push(`<button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none" onclick="workflowAction('${id}','blocked','Item blocked/put on hold.')">⏸ Put On Hold</button>`);
+
+  // ── FEATURE / REQUEST / TASK WORKFLOW ─────────────────────────────────────
+  if (!isBug) {
+    // Product team: review submitted requests
+    if (s === 'submitted' && dept === 'Product') {
+      btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','product-review','Product team started reviewing.')">📋 Start Review</button>`);
+    }
+    if (s === 'product-review' && dept === 'Product') {
+      btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','it-queue','Product approved. Sent to IT queue.')">✅ Approve → Send to IT</button>`);
+      btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','rejected','Request rejected by Product team.')">❌ Reject</button>`);
+    }
+    // IT Lead: assign from queue
+    if (s === 'it-queue' && dept === 'IT' && isLead) {
+      btns.push(`<button class="btn btn-sm" style="background:#6366f1;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','IT Lead assigned and started development.')">🔧 Assign & Start Dev</button>`);
+    }
+    // IT: mark ready for testing
+    if (s === 'in-progress' && dept === 'IT') {
+      btns.push(`<button class="btn btn-sm" style="background:#8b5cf6;color:#fff;border:none" onclick="workflowAction('${id}','testing','Development complete. Ready for testing.')">🧪 Ready for Testing</button>`);
+    }
+    // Product/IT: test pass or fail
+    if (s === 'testing' && (dept === 'IT' || dept === 'Product')) {
+      btns.push(`<button class="btn btn-sm" style="background:#10b981;color:#fff;border:none" onclick="workflowAction('${id}','done','Testing passed. Done.')">✅ Testing Passed → Done</button>`);
+      btns.push(`<button class="btn btn-sm" style="background:#ef4444;color:#fff;border:none" onclick="workflowAction('${id}','in-progress','Issue found. Sent back to dev.')">🐛 Failed → Back to Dev</button>`);
+    }
+    // Lead can block
+    if (!['done','rejected'].includes(s) && isLead && btns.length === 0) {
+      btns.push(`<button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none" onclick="workflowAction('${id}','blocked','Item blocked/put on hold.')">⏸ Put On Hold</button>`);
+    }
   }
 
   if (!btns.length) return '';
@@ -2440,8 +2477,13 @@ function openPanel(id){
   const workflowBtns = getWorkflowActions(item);
 
   // Workflow stage progress bar
-  const stages = ['submitted','product-review','it-queue','in-progress','testing','done'];
-  const stageLabels = {'submitted':'Submitted','product-review':'Product Review','it-queue':'IT Queue','in-progress':'In Dev','testing':'Testing','done':'Done'};
+  const isBugItem = item.type === 'bug';
+  const stages = isBugItem
+    ? ['submitted','in-progress','testing','done']
+    : ['submitted','product-review','it-queue','in-progress','testing','done'];
+  const stageLabels = isBugItem
+    ? {'submitted':'Reported','in-progress':'Fixing','testing':'Verifying','done':'Closed'}
+    : {'submitted':'Submitted','product-review':'Product Review','it-queue':'IT Queue','in-progress':'In Dev','testing':'Testing','done':'Done'};
   const curIdx = stages.indexOf(item.status);
   const stageBar = ['request','feature','task','story','epic','bug'].includes(item.type) && curIdx >= 0 ? `
     <div style="margin-bottom:16px">
