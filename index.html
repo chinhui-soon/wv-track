@@ -1460,15 +1460,15 @@ const CREDENTIALS = {
 const USERS = {
   // ── PRODUCT DEPT ──────────────────────────────────────────────────────────
   product_mgr:{id:'product_mgr',name:'Wei Xian Loh',    role:'Product Manager',      dept:'Product',  isLead:true,  color:'#8b5cf6',
-    nav:['dashboard','projects','calendar','requests','backlog','items','kanban','test-plans','bugs','reports','team','settings']},
+    nav:['dashboard','projects','calendar','requests','backlog','sprints','items','kanban','test-plans','bugs','reports','team','settings']},
   product_lead:    {id:'product_lead',    name:'Marcus Lee',   role:'Product Lead',             dept:'Product',  isLead:true,  color:'#6366f1',
-    nav:['my-dashboard','requests','projects','calendar','backlog','my-work','submit-request','bugs','test-plans','log-bug','kanban','reports']},
+    nav:['my-dashboard','requests','projects','calendar','backlog','sprints','my-work','submit-request','bugs','test-plans','log-bug','kanban','reports']},
   snr_product:     {id:'snr_product',     name:'Rachel Ng',    role:'Senior Product Analyst',   dept:'Product',  isLead:false, color:'#6366f1',
-    nav:['my-dashboard','requests','projects','calendar','backlog','my-work','submit-request','bugs','test-plans','log-bug','kanban']},
+    nav:['my-dashboard','requests','projects','calendar','backlog','sprints','my-work','submit-request','bugs','test-plans','log-bug','kanban']},
   product_executive:{id:'product_executive',name:'David Tan',  role:'Product Executive',        dept:'Product',  isLead:false, color:'#6366f1',
-    nav:['my-dashboard','requests','projects','calendar','my-work','submit-request','bugs','test-plans','log-bug','kanban']},
+    nav:['my-dashboard','requests','projects','calendar','sprints','my-work','submit-request','bugs','test-plans','log-bug','kanban']},
   designer:   {id:'designer',  name:'Chin Hui Soon',    role:'Product Designer',     dept:'Product',  isLead:false, color:'#a855f7',
-    nav:['my-dashboard','my-work','requests','submit-request','projects']},
+    nav:['my-dashboard','my-work','requests','submit-request','projects','sprints']},
 
   // ── IT DEPT ───────────────────────────────────────────────────────────────
   it_mgr:     {id:'it_mgr',    name:'Ahmad Razif',      role:'IT Manager',           dept:'IT',       isLead:true,  color:'#10b981',
@@ -1478,7 +1478,7 @@ const USERS = {
   it_snr:     {id:'it_snr',   name:'Nurul Ain',        role:'Senior IT Engineer',   dept:'IT',       isLead:false, color:'#10b981',
     nav:['my-dashboard','projects','calendar','my-work','sprints','kanban','log-bug','pipelines','bugs','test-plans','service-requests']},
   it:         {id:'it',        name:'Faiz Azmi',        role:'IT Engineer',          dept:'IT',       isLead:false, color:'#10b981',
-    nav:['my-dashboard','projects','my-work','kanban','log-bug','service-requests','submit-request']},
+    nav:['my-dashboard','projects','calendar','my-work','sprints','kanban','log-bug','service-requests','submit-request']},
 
   // ── FINANCE ───────────────────────────────────────────────────────────────
   finance_mgr: {id:'finance_mgr', name:'Lee Wei Hong',  role:'Finance Manager',      dept:'Finance',  isLead:true,  color:'#14b8a6',
