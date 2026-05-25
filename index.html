@@ -491,6 +491,10 @@ textarea.fc{resize:vertical;min-height:85px}
         <span onclick="fillLogin('cs_lead','cslead123')" style="font-size:11px;padding:3px 9px;background:#fff1f2;color:#f43f5e;border-radius:6px;cursor:pointer;font-weight:600">cs_lead</span>
         <span onclick="fillLogin('cs_snr','cssnr123')" style="font-size:11px;padding:3px 9px;background:#fff1f2;color:#f43f5e;border-radius:6px;cursor:pointer;font-weight:600">cs_snr</span>
         <span onclick="fillLogin('cs','csagent123')" style="font-size:11px;padding:3px 9px;background:#fff1f2;color:#f43f5e;border-radius:6px;cursor:pointer;font-weight:600">cs</span>
+        <span onclick="fillLogin('legal_mgr','legalmgr123')" style="font-size:11px;padding:3px 9px;background:#f8fafc;color:#64748b;border-radius:6px;cursor:pointer;font-weight:600">legal_mgr</span>
+        <span onclick="fillLogin('legal_lead','legallead123')" style="font-size:11px;padding:3px 9px;background:#f8fafc;color:#64748b;border-radius:6px;cursor:pointer;font-weight:600">legal_lead</span>
+        <span onclick="fillLogin('legal_snr','legalsnr123')" style="font-size:11px;padding:3px 9px;background:#f8fafc;color:#64748b;border-radius:6px;cursor:pointer;font-weight:600">legal_snr</span>
+        <span onclick="fillLogin('legal','legalexec123')" style="font-size:11px;padding:3px 9px;background:#f8fafc;color:#64748b;border-radius:6px;cursor:pointer;font-weight:600">legal</span>
         <span onclick="fillLogin('mgmt','mgmt123')" style="font-size:11px;padding:3px 9px;background:#faf5ff;color:#8b5cf6;border-radius:6px;cursor:pointer;font-weight:600">mgmt</span>
       </div>
     </div>
@@ -1456,6 +1460,11 @@ const CREDENTIALS = {
   cs_lead:     'cslead123',
   cs_snr:      'cssnr123',
   cs:          'csagent123',
+  // Legal
+  legal_mgr:   'legalmgr123',
+  legal_lead:  'legallead123',
+  legal_snr:   'legalsnr123',
+  legal:       'legalexec123',
   // Management
   mgmt:        'mgmt123',
 };
@@ -1543,6 +1552,16 @@ const USERS = {
   cs:         {id:'cs',        name:'Marcus Sim',       role:'CS Agent',             dept:'CS',       isLead:false, color:'#f43f5e',
     nav:['my-dashboard','service-requests','submit-request','log-bug']},
 
+  // ── LEGAL ─────────────────────────────────────────────────────────────────
+  legal_mgr:  {id:'legal_mgr', name:'Jonathan Tan',     role:'Legal Manager',        dept:'Legal',    isLead:true,  color:'#64748b',
+    nav:['my-dashboard','projects','my-work','submit-request','approvals','reports','team']},
+  legal_lead: {id:'legal_lead',name:'Priscilla Wong',   role:'Legal Lead',           dept:'Legal',    isLead:false, color:'#64748b',
+    nav:['my-dashboard','my-work','submit-request','approvals','reports']},
+  legal_snr:  {id:'legal_snr', name:'Darren Ng',        role:'Senior Legal Exec',    dept:'Legal',    isLead:false, color:'#64748b',
+    nav:['my-dashboard','my-work','submit-request']},
+  legal:      {id:'legal',     name:'Sasha Lim',        role:'Legal Executive',      dept:'Legal',    isLead:false, color:'#64748b',
+    nav:['my-dashboard','my-work','submit-request']},
+
   // ── MANAGEMENT ────────────────────────────────────────────────────────────
   mgmt:       {id:'mgmt',      name:"Dato' Razak",      role:'Director',             dept:'Management',isLead:true, color:'#8b5cf6',
     nav:['exec-dashboard','reports','team']},
@@ -1611,9 +1630,10 @@ const A_COLORS = {
   'Eric Tan':'#22c55e','Lisa Wong':'#22c55e','Danny Lim':'#22c55e','Vivian Ong':'#22c55e',
   'Siti Rahimah':'#d946ef','Jason Khoo':'#d946ef','Elaine Tan':'#d946ef','Hafiz Azman':'#d946ef',
   'Grace Koh':'#f43f5e','Henry Lau':'#f43f5e','Zara Ahmad':'#f43f5e','Marcus Sim':'#f43f5e',
+  'Jonathan Tan':'#64748b','Priscilla Wong':'#64748b','Darren Ng':'#64748b','Sasha Lim':'#64748b',
   "Dato' Razak":'#8b5cf6'
 };
-const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR':'#fff7ed','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#fdf4ff','CS':'#fff1f2','Management':'#faf5ff'};
+const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR':'#fff7ed','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#fdf4ff','CS':'#fff1f2','Legal':'#f8fafc','Management':'#faf5ff'};
 
 // ═══════════════ LIVE DATA (populated by Firestore or demo) ═══════════════
 let items = [], serviceItems = [], hrItems = [], testCases = [], activities = [];
