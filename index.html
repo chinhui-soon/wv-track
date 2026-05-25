@@ -356,6 +356,35 @@ textarea.fc{resize:vertical;min-height:85px}
   .btn svg{width:14px;height:14px}
   .topbar-search svg{width:15px;height:15px;opacity:.5}
   .notif-btn svg{width:17px;height:17px}
+/* Calendar */
+#calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e2e8f0;border-radius:10px;overflow:hidden}
+.cal-header{background:#f8fafc;padding:8px;text-align:center;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase}
+.cal-day{background:#fff;min-height:100px;padding:6px;vertical-align:top}
+.cal-day.today{background:#eef2ff}
+.cal-day.other-month{background:#f8fafc;opacity:.6}
+.cal-date{font-size:12px;font-weight:600;color:#374151;margin-bottom:4px}
+.cal-item{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600}
+.cal-item.overdue{background:#fef2f2;color:#dc2626}
+.cal-item.due-soon{background:#fffbeb;color:#d97706}
+.cal-item.on-track{background:#f0fdf4;color:#16a34a}
+/* Project cards */
+.proj-card{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.proj-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-2px)}
+.proj-card-bar{position:absolute;top:0;left:0;right:0;height:4px}
+.proj-card-name{font-size:15px;font-weight:700;margin-bottom:4px}
+.proj-card-desc{font-size:12px;color:#718096;margin-bottom:12px;line-height:1.5}
+.proj-card-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* Due date badge */
+.due-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px}
+.due-overdue{background:#fef2f2;color:#dc2626}
+.due-soon{background:#fffbeb;color:#d97706}
+.due-ok{background:#f0fdf4;color:#16a34a}
+/* Notif panel */
+.notif-item{padding:10px 16px;border-bottom:1px solid #f8fafc;cursor:pointer;transition:background .15s}
+.notif-item:hover{background:#f8fafc}
+.notif-item.unread{background:#fafbff}
+.notif-msg{font-size:12px;color:#374151;line-height:1.4}
+.notif-time{font-size:10px;color:#94a3b8;margin-top:2px}
 </style>
 
 <!-- Firebase SDK -->
@@ -475,11 +504,45 @@ textarea.fc{resize:vertical;min-height:85px}
         <input type="text" id="search-input" placeholder="Search work items…" oninput="handleSearch()"/>
       </div>
       <div class="topbar-right">
-        <div class="notif-btn" title="Notifications"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg><div class="notif-dot"></div></div>
+        <div class="notif-btn" title="Notifications" onclick="toggleNotifPanel()" style="position:relative">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+          <div class="notif-dot" id="notif-dot" style="display:none"></div>
+          <span id="notif-count" style="display:none;position:absolute;top:-4px;right:-4px;background:#ef4444;color:#fff;font-size:9px;font-weight:700;border-radius:50%;width:16px;height:16px;align-items:center;justify-content:center"></span>
+        </div>
+        <!-- Notification dropdown -->
+        <div id="notif-panel" style="display:none;position:absolute;top:48px;right:16px;width:320px;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 40px rgba(0,0,0,.12);z-index:500;max-height:400px;overflow-y:auto">
+          <div style="padding:12px 16px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:13px;font-weight:700">Notifications</span>
+            <span onclick="clearNotifs()" style="font-size:11px;color:#6366f1;cursor:pointer;font-weight:600">Clear all</span>
+          </div>
+          <div id="notif-list" style="padding:8px 0"></div>
+        </div>
         <button class="btn btn-primary" id="tb-btn" onclick="tbAction()"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg> New Item</button>
       </div>
     </div>
     <div id="content">
+
+      <!-- ═══ PROJECTS PAGE ═══ -->
+      <div id="page-projects" class="page">
+        <div class="toolbar" style="margin-bottom:16px">
+          <div style="font-size:13px;color:var(--text-muted)" id="projects-count">Loading…</div>
+          <button class="btn btn-primary btn-sm mla" onclick="openProjectModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4.5v15m7.5-7.5h-15"/></svg>
+            New Project
+          </button>
+        </div>
+        <div id="projects-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px"></div>
+      </div>
+
+      <!-- ═══ CALENDAR VIEW ═══ -->
+      <div id="page-calendar" class="page">
+        <div class="toolbar" style="margin-bottom:16px">
+          <button class="btn btn-ghost btn-sm" onclick="calNav(-1)">← Prev</button>
+          <span id="cal-title" style="font-weight:700;font-size:14px;padding:0 12px"></span>
+          <button class="btn btn-ghost btn-sm" onclick="calNav(1)">Next →</button>
+        </div>
+        <div id="calendar-grid"></div>
+      </div>
 
       <!-- ═══ PM / ADMIN DASHBOARD ═══ -->
       <div id="page-dashboard" class="page">
@@ -903,6 +966,53 @@ textarea.fc{resize:vertical;min-height:85px}
   </div><!-- /main -->
 </div><!-- /app -->
 
+<!-- PROJECT MODAL -->
+<div id="proj-modal-overlay" onclick="closeProjectModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000"></div>
+<div id="proj-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;padding:28px;width:480px;max-width:95vw;z-index:3001;box-shadow:0 20px 60px rgba(0,0,0,.2)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <h3 style="font-size:17px;font-weight:700">New Project</h3>
+    <button onclick="closeProjectModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#718096">✕</button>
+  </div>
+  <form onsubmit="saveProject(event)">
+    <div style="display:grid;gap:14px">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Project Name *</label>
+        <input id="proj-name" type="text" required placeholder="e.g. Customer Portal Revamp" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Description</label>
+        <textarea id="proj-desc" rows="2" placeholder="What is this project about?" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;resize:vertical" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Owner Department</label>
+          <select id="proj-dept" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="Product">Product</option><option value="IT">IT</option>
+            <option value="Finance">Finance</option><option value="HR">HR</option>
+            <option value="BD">BD</option><option value="Sales">Sales</option>
+            <option value="Marketing">Marketing</option><option value="CS">Customer Service</option>
+          </select>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Due Date</label>
+          <input id="proj-due" type="date" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none"/>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Color</label>
+        <div style="display:flex;gap:8px">
+          ${['#6366f1','#10b981','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6'].map(c=>`<div onclick="selectProjColor('${c}')" style="width:24px;height:24px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent" class="proj-color-opt" data-color="${c}"></div>`).join('')}
+        </div>
+        <input type="hidden" id="proj-color" value="#6366f1"/>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;justify-content:flex-end">
+      <button type="button" onclick="closeProjectModal()" style="padding:9px 18px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer">Cancel</button>
+      <button type="submit" style="padding:9px 20px;border:none;border-radius:8px;background:#6366f1;color:#fff;font-size:13px;font-weight:700;cursor:pointer">Create Project</button>
+    </div>
+  </form>
+</div>
+
 <!-- NEW/EDIT ITEM MODAL -->
 <div id="item-modal-overlay" onclick="closeItemModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:3000"></div>
 <div id="item-modal" style="display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;z-index:3001;box-shadow:0 20px 60px rgba(0,0,0,.2)">
@@ -963,14 +1073,27 @@ textarea.fc{resize:vertical;min-height:85px}
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Department</label>
+          <select id="modal-item-dept" onchange="onModalDeptChange()" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+            <option value="Product">Product</option>
+            <option value="IT">IT</option>
+            <option value="Finance">Finance</option>
+            <option value="HR">HR</option>
+            <option value="BD">BD</option>
+            <option value="Sales">Sales</option>
+            <option value="Marketing">Marketing</option>
+            <option value="CS">Customer Service</option>
+            <option value="Management">Management</option>
+          </select>
+        </div>
+        <div>
           <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Assignee</label>
           <select id="modal-item-assignee" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
             <option value="">Unassigned</option>
-            <option>Alice Wong</option><option>Bob Tan</option><option>Carol Lim</option>
-            <option>David Chen</option><option>Emma Ng</option><option>Frank Lee</option>
-            <option>Grace Koh</option><option>Henry Lau</option><option>Iris Yap</option>
           </select>
         </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div>
           <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Story Points</label>
           <select id="modal-item-points" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
@@ -978,14 +1101,15 @@ textarea.fc{resize:vertical;min-height:85px}
             <option value="5">5</option><option value="8">8</option><option value="13">13</option>
           </select>
         </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Due Date</label>
+          <input id="modal-item-due" type="date" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none" onfocus="this.style.borderColor='#6366f1'" onblur="this.style.borderColor='#e2e8f0'"/>
+        </div>
       </div>
       <div>
-        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Department</label>
-        <select id="modal-item-dept" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
-          <option value="IT">IT</option><option value="Engineering">Engineering</option>
-          <option value="QA">QA</option><option value="Finance">Finance</option>
-          <option value="HR">HR</option><option value="Operations">Operations</option>
-          <option value="Sales">Sales</option><option value="Marketing">Marketing</option>
+        <label style="font-size:12px;font-weight:600;color:#374151;display:block;margin-bottom:4px">Project</label>
+        <select id="modal-item-project" style="width:100%;padding:9px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:14px;font-family:inherit;outline:none;background:#fff">
+          <option value="">— No Project —</option>
         </select>
       </div>
       <div>
@@ -1063,6 +1187,7 @@ function useDemoMode() {
   hrItems = [...SEED_HR];
   testCases = [...SEED_TC];
   activities = [...SEED_ACTIVITIES];
+  projects = [...SEED_PROJECTS];
   startApp();
 }
 
@@ -1170,6 +1295,13 @@ function setupRealtimeListeners() {
       if (currentPage === 'test-plans') renderTestCases();
     })
   );
+  // Listen to projects
+  unsubscribers.push(
+    db.collection('projects').orderBy('created','desc').onSnapshot(snap => {
+      projects = snap.docs.map(d => d.data());
+      if (currentPage === 'projects') renderProjects();
+    })
+  );
   hideLoading();
   startApp();
 }
@@ -1210,6 +1342,8 @@ function reRenderCurrentPage() {
   if (currentPage === 'requests') renderSubTable('requests');
   if (currentPage === 'my-work') renderMyWork();
   if (currentPage === 'my-dashboard') renderMyDashboard();
+  if (currentPage === 'projects') renderProjects();
+  if (currentPage === 'calendar') renderCalendar();
   renderActivity();
 }
 
@@ -1249,55 +1383,55 @@ const CREDENTIALS = {
 const USERS = {
   // ── PRODUCT DEPT ──────────────────────────────────────────────────────────
   product_mgr:{id:'product_mgr',name:'Chin Hui Soon',  role:'Product Manager',   dept:'Product',    isLead:true,  color:'#8b5cf6',
-    nav:['dashboard','requests','backlog','items','kanban','test-plans','bugs','reports','team','settings']},
+    nav:['dashboard','projects','calendar','requests','backlog','items','kanban','test-plans','bugs','reports','team','settings']},
   ba:         {id:'ba',         name:'David Tan',       role:'Business Analyst',  dept:'Product',    isLead:false, color:'#6366f1',
-    nav:['my-dashboard','requests','backlog','my-work','submit-request']},
+    nav:['my-dashboard','requests','projects','calendar','backlog','my-work','submit-request']},
   designer:   {id:'designer',   name:'Priya Nair',      role:'Product Designer',  dept:'Product',    isLead:false, color:'#a855f7',
     nav:['my-dashboard','my-work','requests','submit-request']},
 
   // ── IT DEPT ───────────────────────────────────────────────────────────────
   it_lead:    {id:'it_lead',    name:'Ahmad Razif',     role:'IT Lead',           dept:'IT',         isLead:true,  color:'#10b981',
-    nav:['dashboard','items','backlog','sprints','kanban','bugs','pipelines','test-plans','reports','team','settings']},
+    nav:['dashboard','projects','calendar','items','backlog','sprints','kanban','bugs','pipelines','test-plans','reports','team','settings']},
   dev:        {id:'dev',        name:'Kevin Ong',       role:'Developer',         dept:'IT',         isLead:false, color:'#10b981',
-    nav:['my-dashboard','my-work','sprints','kanban','log-bug','pipelines']},
+    nav:['my-dashboard','projects','calendar','my-work','sprints','kanban','log-bug','pipelines']},
   qa:         {id:'qa',         name:'Sarah Lim',       role:'QA Engineer',       dept:'IT',         isLead:false, color:'#f59e0b',
-    nav:['my-dashboard','my-work','bugs','test-plans','log-bug','kanban']},
+    nav:['my-dashboard','projects','my-work','bugs','test-plans','log-bug','kanban']},
   it_support: {id:'it_support', name:'Nurul Ain',       role:'IT Support',        dept:'IT',         isLead:false, color:'#ec4899',
     nav:['my-dashboard','service-requests','my-work','log-bug','submit-request']},
 
   // ── FINANCE ───────────────────────────────────────────────────────────────
   finance_mgr:{id:'finance_mgr',name:'Lee Wei Hong',   role:'Finance Manager',   dept:'Finance',    isLead:true,  color:'#14b8a6',
-    nav:['my-dashboard','finance-requests','approvals','submit-request','reports','team']},
+    nav:['my-dashboard','projects','finance-requests','approvals','submit-request','reports','team']},
   finance:    {id:'finance',    name:'Jenny Tan',       role:'Finance Executive', dept:'Finance',    isLead:false, color:'#14b8a6',
     nav:['my-dashboard','finance-requests','submit-request']},
 
   // ── HR ────────────────────────────────────────────────────────────────────
   hr_mgr:     {id:'hr_mgr',     name:'Farah Nadia',     role:'HR Manager',        dept:'HR',         isLead:true,  color:'#f97316',
-    nav:['my-dashboard','hr-requests','approvals','submit-request','reports','team']},
+    nav:['my-dashboard','projects','hr-requests','approvals','submit-request','reports','team']},
   hr:         {id:'hr',         name:'Amirah Zain',     role:'HR Executive',      dept:'HR',         isLead:false, color:'#f97316',
     nav:['my-dashboard','hr-requests','submit-request']},
 
   // ── BD ────────────────────────────────────────────────────────────────────
   bd_mgr:     {id:'bd_mgr',     name:'Raymond Loh',     role:'BD Manager',        dept:'BD',         isLead:true,  color:'#0ea5e9',
-    nav:['my-dashboard','my-work','submit-request','reports','team']},
+    nav:['my-dashboard','projects','my-work','submit-request','reports','team']},
   bd:         {id:'bd',         name:'Michelle Yap',    role:'BD Executive',      dept:'BD',         isLead:false, color:'#0ea5e9',
     nav:['my-dashboard','my-work','submit-request']},
 
   // ── SALES ─────────────────────────────────────────────────────────────────
   sales_mgr:  {id:'sales_mgr',  name:'Eric Tan',        role:'Sales Manager',     dept:'Sales',      isLead:true,  color:'#22c55e',
-    nav:['my-dashboard','my-work','submit-request','reports','team']},
+    nav:['my-dashboard','projects','my-work','submit-request','reports','team']},
   sales:      {id:'sales',      name:'Lisa Wong',       role:'Sales Executive',   dept:'Sales',      isLead:false, color:'#22c55e',
     nav:['my-dashboard','my-work','submit-request']},
 
   // ── MARKETING ─────────────────────────────────────────────────────────────
   mkt_mgr:    {id:'mkt_mgr',    name:'Siti Rahimah',    role:'Marketing Manager', dept:'Marketing',  isLead:true,  color:'#d946ef',
-    nav:['my-dashboard','my-work','submit-request','reports','team']},
+    nav:['my-dashboard','projects','my-work','submit-request','reports','team']},
   marketing:  {id:'marketing',  name:'Jason Khoo',      role:'Marketing Exec',    dept:'Marketing',  isLead:false, color:'#d946ef',
     nav:['my-dashboard','my-work','submit-request']},
 
   // ── CUSTOMER SERVICE ──────────────────────────────────────────────────────
   cs_mgr:     {id:'cs_mgr',     name:'Grace Koh',       role:'CS Manager',        dept:'CS',         isLead:true,  color:'#f43f5e',
-    nav:['my-dashboard','service-requests','submit-request','reports','team']},
+    nav:['my-dashboard','projects','service-requests','submit-request','reports','team']},
   cs:         {id:'cs',         name:'Henry Lau',       role:'CS Agent',          dept:'CS',         isLead:false, color:'#f43f5e',
     nav:['my-dashboard','service-requests','submit-request','log-bug']},
 
@@ -1326,8 +1460,30 @@ const NAV_META = {
   'hr-requests':       {label:'HR Requests',          icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"/></svg>`, section:'Human Resources'},
   'reports':           {label:'Reports',              icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"/></svg>`, section:'Insights'},
   'team':              {label:'Team',                 icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>`, section:'Insights'},
+  'projects':          {label:'Projects',           icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v8.25A2.25 2.25 0 0 0 4.5 16.5h15A2.25 2.25 0 0 0 21.75 15v-4.72c0-.612-.245-1.2-.68-1.634l-3.75-3.75A2.25 2.25 0 0 0 15.75 4.5h-1.19Z"/></svg>`, section:'Work Items'},
+  'calendar':          {label:'Calendar',            icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5m-9-6h.008v.008H12v-.008ZM12 15h.008v.008H12V15Zm0 2.25h.008v.008H12v-.008ZM9.75 15h.008v.008H9.75V15Zm0 2.25h.008v.008H9.75v-.008ZM7.5 15h.008v.008H7.5V15Zm0 2.25h.008v.008H7.5v-.008Zm6.75-4.5h.008v.008h-.008v-.008Zm0 2.25h.008v.008h-.008V15Zm0 2.25h.008v.008h-.008v-.008Zm2.25-4.5h.008v.008H16.5v-.008Zm0 2.25h.008v.008H16.5V15Z"/></svg>`, section:'Work Items'},
   'settings':          {label:'Settings',             icon:`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28ZM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>`, section:'Admin'},
 };
+
+// ── Dept → Members map (auto-computed from USERS) ──────────────────────────
+const DEPT_MEMBERS = {};
+Object.values(USERS).forEach(u => {
+  if (!DEPT_MEMBERS[u.dept]) DEPT_MEMBERS[u.dept] = [];
+  DEPT_MEMBERS[u.dept].push(u.name);
+});
+
+// ── Projects ──────────────────────────────────────────────────────────────
+let projects = [];
+let notifications = [];
+let calendarDate = new Date();
+let activeProjectFilter = '';
+
+const SEED_PROJECTS = [
+  {id:'proj-001',name:'Customer Portal Revamp',desc:'Full revamp of the customer-facing portal with new UX.',dept:'Product',color:'#6366f1',status:'active',owner:'Chin Hui Soon',dueDate:'2026-08-31',created:'2026-05-01',taskCount:0},
+  {id:'proj-002',name:'Payroll System Upgrade',desc:'Upgrade the payroll module to support multi-currency.',dept:'Finance',color:'#14b8a6',status:'active',owner:'Lee Wei Hong',dueDate:'2026-07-15',created:'2026-05-05',taskCount:0},
+  {id:'proj-003',name:'Mobile App v2.0',desc:'Rebuild the mobile app with React Native.',dept:'IT',color:'#10b981',status:'active',owner:'Ahmad Razif',dueDate:'2026-09-30',created:'2026-05-10',taskCount:0},
+  {id:'proj-004',name:'Marketing Campaign Q3',desc:'Q3 digital marketing campaign across all channels.',dept:'Marketing',color:'#d946ef',status:'active',owner:'Siti Rahimah',dueDate:'2026-09-01',created:'2026-05-12',taskCount:0},
+];
 
 const A_COLORS = {'Chin Hui Soon':'#8b5cf6','David Tan':'#6366f1','Priya Nair':'#a855f7','Ahmad Razif':'#10b981','Kevin Ong':'#0ea5e9','Sarah Lim':'#f59e0b','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Jenny Tan':'#14b8a6','Farah Nadia':'#f97316','Amirah Zain':'#f97316','Raymond Loh':'#0ea5e9','Michelle Yap':'#0ea5e9','Eric Tan':'#22c55e','Lisa Wong':'#22c55e','Siti Rahimah':'#d946ef','Jason Khoo':'#d946ef','Grace Koh':'#f43f5e','Henry Lau':'#f43f5e',"Dato' Razak":'#8b5cf6'};
 const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR':'#fff7ed','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#fdf4ff','CS':'#fff1f2','Management':'#faf5ff'};
@@ -1453,6 +1609,203 @@ function loginAs(uid) {
   renderUserSettings();
   updateTopbarBtn();
 }
+// ═══════════════ DEPT-FILTERED ASSIGNEE ═══════════════
+function onModalDeptChange() {
+  const dept = document.getElementById('modal-item-dept').value;
+  const sel = document.getElementById('modal-item-assignee');
+  const current = sel.value;
+  const members = DEPT_MEMBERS[dept] || [];
+  sel.innerHTML = '<option value="">Unassigned</option>' +
+    members.map(n => `<option value="${n}" ${n===current?'selected':''}>${n}</option>`).join('') +
+    `<option value="__all__" style="color:#94a3b8">── Other ──</option>`;
+  Object.values(USERS).forEach(u => {
+    if (u.dept !== dept) {
+      sel.innerHTML += `<option value="${u.name}" ${u.name===current?'selected':''}>${u.name} (${u.dept})</option>`;
+    }
+  });
+}
+
+function populateProjectDropdown(selected) {
+  const sel = document.getElementById('modal-item-project');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">— No Project —</option>' +
+    projects.map(p => `<option value="${p.id}" ${p.id===selected?'selected':''}>${p.name}</option>`).join('');
+}
+
+// ═══════════════ PROJECTS ═══════════════
+function openProjectModal() {
+  document.getElementById('proj-modal').style.display = 'block';
+  document.getElementById('proj-modal-overlay').style.display = 'block';
+  document.getElementById('proj-name').value = '';
+  document.getElementById('proj-desc').value = '';
+  document.getElementById('proj-due').value = '';
+  document.getElementById('proj-color').value = '#6366f1';
+  document.querySelectorAll('.proj-color-opt').forEach(el => {
+    el.style.border = el.dataset.color === '#6366f1' ? '2px solid #1a202c' : '2px solid transparent';
+  });
+}
+function closeProjectModal() {
+  document.getElementById('proj-modal').style.display = 'none';
+  document.getElementById('proj-modal-overlay').style.display = 'none';
+}
+function selectProjColor(color) {
+  document.getElementById('proj-color').value = color;
+  document.querySelectorAll('.proj-color-opt').forEach(el => {
+    el.style.border = el.dataset.color === color ? '2px solid #1a202c' : '2px solid transparent';
+  });
+}
+async function saveProject(e) {
+  e.preventDefault();
+  const id = 'proj-' + Date.now();
+  const proj = {
+    id, name: document.getElementById('proj-name').value.trim(),
+    desc: document.getElementById('proj-desc').value.trim(),
+    dept: document.getElementById('proj-dept').value,
+    dueDate: document.getElementById('proj-due').value,
+    color: document.getElementById('proj-color').value,
+    owner: currentUser.name, status: 'active',
+    created: new Date().toISOString().slice(0,10), taskCount: 0
+  };
+  if (isDemoMode) {
+    projects.push(proj);
+    renderProjects();
+  } else {
+    await db.collection('projects').doc(id).set(proj);
+  }
+  await dbAddActivity(`${currentUser.name} created project <b>${proj.name}</b>`, proj.color);
+  closeProjectModal();
+  showToast('Project created!');
+}
+function renderProjects() {
+  const grid = document.getElementById('projects-grid');
+  if (!grid) return;
+  const count = document.getElementById('projects-count');
+  if (count) count.textContent = `${projects.length} project${projects.length!==1?'s':''}`;
+  if (!projects.length) { grid.innerHTML = '<div class="muted" style="padding:40px;text-align:center">No projects yet. Create your first project!</div>'; return; }
+  const today = new Date();
+  grid.innerHTML = projects.map(p => {
+    const due = p.dueDate ? new Date(p.dueDate) : null;
+    const diff = due ? Math.ceil((due-today)/86400000) : null;
+    const dueBadge = due ? (diff < 0 ? `<span class="due-badge due-overdue">Overdue ${Math.abs(diff)}d</span>` : diff <= 14 ? `<span class="due-badge due-soon">Due in ${diff}d</span>` : `<span class="due-badge due-ok">Due ${p.dueDate}</span>`) : '';
+    const taskCount = items.filter(i => i.projectId === p.id).length;
+    const doneCount = items.filter(i => i.projectId === p.id && i.status === 'done').length;
+    const pct = taskCount ? Math.round(doneCount/taskCount*100) : 0;
+    return `<div class="proj-card" onclick="filterByProject('${p.id}')">
+      <div class="proj-card-bar" style="background:${p.color}"></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-top:6px;margin-bottom:8px">
+        <div style="width:36px;height:36px;border-radius:9px;background:${p.color};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0">${p.name.slice(0,2).toUpperCase()}</div>
+        <div>
+          <div class="proj-card-name">${p.name}</div>
+          <div style="font-size:11px;color:#94a3b8">${p.dept} · ${p.owner}</div>
+        </div>
+      </div>
+      <div class="proj-card-desc">${p.desc||'No description.'}</div>
+      <div style="margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:4px">
+          <span>Progress</span><span>${doneCount}/${taskCount} tasks (${pct}%)</span>
+        </div>
+        <div style="background:#e2e8f0;border-radius:4px;height:5px">
+          <div style="width:${pct}%;background:${p.color};height:5px;border-radius:4px;transition:width .3s"></div>
+        </div>
+      </div>
+      <div class="proj-card-meta">${dueBadge}<span class="badge" style="background:${DEPT_COLORS[p.dept]||'#f1f5f9'};color:#475569">${p.dept}</span></div>
+    </div>`;
+  }).join('');
+}
+function filterByProject(projId) {
+  activeProjectFilter = projId;
+  const proj = projects.find(p => p.id === projId);
+  showToast(`Filtering by: ${proj ? proj.name : 'All'}`);
+  navigate('items');
+}
+
+// ═══════════════ CALENDAR ═══════════════
+function renderCalendar() {
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  const title = document.getElementById('cal-title');
+  if (title) title.textContent = calendarDate.toLocaleString('default', {month:'long', year:'numeric'});
+  const grid = document.getElementById('calendar-grid');
+  if (!grid) return;
+  const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+  let cells = [];
+  for (let i = firstDay-1; i >= 0; i--) cells.push({day: daysInPrev-i, cur:false});
+  for (let i = 1; i <= daysInMonth; i++) cells.push({day:i, cur:true});
+  while (cells.length % 7 !== 0) cells.push({day: cells.length-daysInMonth-firstDay+1, cur:false});
+  cells.forEach(cell => {
+    const d = new Date(year, month, cell.day); d.setHours(0,0,0,0);
+    const isToday = cell.cur && d.getTime() === today.getTime();
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(cell.day).padStart(2,'0')}`;
+    const dayItems = cell.cur ? items.filter(i => i.dueDate === dateStr) : [];
+    html += `<div class="cal-day${isToday?' today':''}${!cell.cur?' other-month':''}">
+      <div class="cal-date" style="${isToday?'color:#6366f1;':''}${!cell.cur?'color:#94a3b8':''}">${cell.day}</div>
+      ${dayItems.map(item => {
+        const diff = Math.ceil((d-today)/86400000);
+        const cls = diff < 0 ? 'overdue' : diff <= 3 ? 'due-soon' : 'on-track';
+        return `<div class="cal-item ${cls}" onclick="openPanel('${item.id}')" title="${item.title}">${item.id}: ${item.title}</div>`;
+      }).join('')}
+    </div>`;
+  });
+  grid.innerHTML = html;
+}
+function calNav(dir) {
+  calendarDate.setMonth(calendarDate.getMonth() + dir);
+  renderCalendar();
+}
+
+// ═══════════════ NOTIFICATIONS ═══════════════
+function addNotification(msg, itemId, color) {
+  if (!currentUser) return;
+  notifications.unshift({msg, itemId, color: color||'#6366f1', ts: Date.now(), read: false});
+  if (notifications.length > 50) notifications.pop();
+  updateNotifBadge();
+}
+function updateNotifBadge() {
+  const unread = notifications.filter(n => !n.read).length;
+  const dot = document.getElementById('notif-dot');
+  const cnt = document.getElementById('notif-count');
+  if (dot) dot.style.display = unread ? 'block' : 'none';
+  if (cnt) { cnt.style.display = unread ? 'flex' : 'none'; cnt.textContent = unread > 9 ? '9+' : unread; }
+}
+function toggleNotifPanel() {
+  const panel = document.getElementById('notif-panel');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) renderNotifList();
+}
+function renderNotifList() {
+  const list = document.getElementById('notif-list');
+  if (!list) return;
+  if (!notifications.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:13px;color:#94a3b8">No notifications</div>';
+    return;
+  }
+  const timeAgo = ts => { const d=Date.now()-ts; if(d<60000)return'just now'; if(d<3600000)return Math.floor(d/60000)+'m ago'; if(d<86400000)return Math.floor(d/3600000)+'h ago'; return Math.floor(d/86400000)+'d ago'; };
+  list.innerHTML = notifications.map(n => `
+    <div class="notif-item ${n.read?'':'unread'}" onclick="notifClick('${n.itemId||''}')">
+      <div style="display:flex;gap:8px;align-items:flex-start">
+        <div style="width:8px;height:8px;border-radius:50%;background:${n.color};flex-shrink:0;margin-top:4px"></div>
+        <div>
+          <div class="notif-msg">${n.msg}</div>
+          <div class="notif-time">${timeAgo(n.ts)}</div>
+        </div>
+      </div>
+    </div>`).join('');
+  notifications.forEach(n => n.read = true);
+  updateNotifBadge();
+}
+function notifClick(itemId) {
+  document.getElementById('notif-panel').style.display = 'none';
+  if (itemId) openPanel(itemId);
+}
+function clearNotifs() { notifications = []; updateNotifBadge(); renderNotifList(); }
+
 function toggleSidebar(){
   const sb=document.getElementById('sidebar');
   const bd=document.getElementById('sidebar-backdrop');
@@ -1505,6 +1858,8 @@ function navigate(p){
   document.getElementById('page-title').textContent=m?m.label:p;
   updateTopbarBtn();
   if(p==='dashboard'||p==='exec-dashboard')renderActivity();
+  if(p==='projects'){renderProjects();}
+  if(p==='calendar'){renderCalendar();}
   if(p==='my-dashboard')renderMyDashboard();
   if(p==='items')renderItemsTable();
   if(p==='kanban')renderKanban();
@@ -1547,13 +1902,20 @@ function openItemModal(existingItem) {
     document.getElementById('modal-item-priority').value = existingItem.priority || 'medium';
     document.getElementById('modal-item-status').value = existingItem.status || 'open';
     document.getElementById('modal-item-sprint').value = existingItem.sprint || 'Backlog';
-    document.getElementById('modal-item-assignee').value = existingItem.assignee || '';
     document.getElementById('modal-item-points').value = existingItem.points || '3';
-    document.getElementById('modal-item-dept').value = existingItem.dept || 'IT';
+    document.getElementById('modal-item-dept').value = existingItem.dept || currentUser.dept;
+    document.getElementById('modal-item-due').value = existingItem.dueDate || '';
     document.getElementById('modal-item-desc').value = existingItem.desc || '';
+    onModalDeptChange();
+    document.getElementById('modal-item-assignee').value = existingItem.assignee || '';
+    populateProjectDropdown(existingItem.projectId || '');
   } else {
     editId.value = '';
     document.getElementById('item-modal-form').reset();
+    document.getElementById('modal-item-dept').value = currentUser.dept;
+    onModalDeptChange();
+    document.getElementById('modal-item-assignee').value = currentUser.name;
+    populateProjectDropdown('');
   }
   modal.style.display = 'block';
   overlay.style.display = 'block';
@@ -1577,21 +1939,29 @@ async function saveModalItem(e) {
   const points = parseInt(document.getElementById('modal-item-points').value);
   const dept = document.getElementById('modal-item-dept').value;
   const desc = document.getElementById('modal-item-desc').value.trim();
+  const dueDate = document.getElementById('modal-item-due').value;
+  const projectId = document.getElementById('modal-item-project').value;
+  const projectName = projectId ? (projects.find(p=>p.id===projectId)||{}).name||'' : '';
 
   const btn = document.getElementById('modal-save-btn');
   btn.textContent = 'Saving…'; btn.disabled = true;
 
   if (editId) {
     // Edit existing
-    await dbSave('items', editId, {title, type, priority, status, sprint, assignee, points, dept, desc});
+    await dbSave('items', editId, {title, type, priority, status, sprint, assignee, points, dept, desc, dueDate, projectId, projectName});
     await dbAddActivity(`${currentUser.name} updated item <b>${editId}</b>`, '#6366f1');
     showToast('Item updated!');
+    const updatedItem = items.find(i=>i.id===editId);
+    if (updatedItem && assignee && assignee !== currentUser.name) {
+      addNotification(`${currentUser.name} updated <b>${editId}</b> assigned to you`, editId, '#f59e0b');
+    }
   } else {
     // Create new
     const idNum = String(nextId).padStart(3,'0');
     const id = 'FT-' + idNum; nextId++;
     const newItem = {
       id, title, type, priority, status, sprint, assignee, points, dept, desc,
+      dueDate, projectId, projectName,
       created: new Date().toISOString().slice(0,10),
       comments: [],
       approvalStatus: ['request','feature'].includes(type) ? 'pending' : null,
@@ -1600,6 +1970,9 @@ async function saveModalItem(e) {
     await dbAdd('items', newItem);
     await dbAddActivity(`${currentUser.name} created ${type} <b>${id}</b>`, '#10b981');
     showToast('Item created!');
+    if (assignee && assignee !== currentUser.name) {
+      addNotification(`${currentUser.name} assigned <b>${id}</b> to you: ${title}`, id, '#6366f1');
+    }
   }
 
   btn.textContent = editId ? 'Save Changes' : 'Create Item'; btn.disabled = false;
@@ -1698,8 +2071,8 @@ function renderItemsTable(){
       <td>${typeBadge(r.type)}</td><td>${prioBadge(r.priority)}</td><td>${statusBadge(r.status)}</td>
       <td><div class="flex aic g2"><div class="av" style="background:${A_COLORS[r.assignee]||'#6366f1'}">${ini(r.assignee)}</div><span style="font-size:12px">${r.assignee}</span></div></td>
       <td><span class="badge" style="background:${DEPT_COLORS[r.dept]||'#f1f5f9'};color:#475569">${r.dept}</span></td>
-      <td class="muted">${r.created}</td>
-    </tr>`).join(''):'<tr><td colspan="8"><div class="empty"><div class="empty-icon">📭</div><p>No items found</p></div></td></tr>';
+      <td>${r.dueDate ? dueDateBadge(r.dueDate) : '<span class="muted">—</span>'}</td><td class="muted">${r.created}</td>
+    </tr>`).join(''):'<tr><td colspan="9"><div class="empty"><div class="empty-icon">📭</div><p>No items found</p></div></td></tr>';
 }
 function filterItems(f,btn){document.querySelectorAll('#items-filter-group .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentItemsFilter=f;renderItemsTable();}
 function filterByType(v){currentTypeFilter=v;renderItemsTable();}
@@ -2018,6 +2391,8 @@ function openPanel(id){
       <div class="pf"><div class="pfl">Priority</div>${prioBadge(item.priority||'medium')}</div>
       <div class="pf"><div class="pfl">Type</div>${typeBadge(item.type||'task')}</div>
       <div class="pf"><div class="pfl">Assignee</div><div class="flex aic g2"><div class="av" style="background:${A_COLORS[item.assignee]||'#6366f1'}">${ini(item.assignee||'?')}</div>${item.assignee||'—'}</div></div>
+      ${item.projectName?`<div class="pf"><div class="pfl">Project</div><span style="font-size:13px;font-weight:600;color:#6366f1">📁 ${item.projectName}</span></div>`:''}
+      ${item.dueDate?`<div class="pf"><div class="pfl">Due Date</div>${dueDateBadge(item.dueDate)}</div>`:''}
       ${item.dept?`<div class="pf"><div class="pfl">Department</div><span class="badge" style="background:${DEPT_COLORS[item.dept]||'#f1f5f9'};color:#475569">${item.dept}</span></div>`:''}
       ${item.sprint?`<div class="pf"><div class="pfl">Sprint</div><span style="font-size:13px;font-weight:600">${item.sprint}</span></div>`:''}
       ${item.points?`<div class="pf"><div class="pfl">Points</div><span style="font-size:16px;font-weight:700">${item.points}</span></div>`:''}
@@ -2115,6 +2490,16 @@ const warnSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" vi
 const ticketSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 6v.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V6m12 0 .867-1.732A1.875 1.875 0 0 0 15.232 3H8.768a1.875 1.875 0 0 0-1.635.955L6.268 6m10.232 0H6.768m0 0L6 16.5h12L17.232 6"/></svg>`;
 const checkSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4.5 12.75 6 6 9-13.5"/></svg>`;
 const xSvg=`<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18 18 6M6 6l12 12"/></svg>`;
+function dueDateBadge(d) {
+  if (!d) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const due = new Date(d);
+  const diff = Math.ceil((due-today)/86400000);
+  if (diff < 0) return `<span class="due-badge due-overdue">⚠ Overdue</span>`;
+  if (diff === 0) return `<span class="due-badge due-soon">Due Today</span>`;
+  if (diff <= 3) return `<span class="due-badge due-soon">Due in ${diff}d</span>`;
+  return `<span class="due-badge due-ok">${d}</span>`;
+}
 function typeBadge(v){
   const m={bug:'Bug',request:'Request',feature:'Feature',task:'Task',story:'Story',epic:'Epic',incident:'Incident',service:'Service'};
   const c={bug:'b-bug',request:'b-request',feature:'b-feature',task:'b-task',story:'b-story',epic:'b-epic',incident:'b-incident',service:'b-service'};
