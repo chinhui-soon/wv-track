@@ -1382,11 +1382,11 @@ const CREDENTIALS = {
 
 const USERS = {
   // ── PRODUCT DEPT ──────────────────────────────────────────────────────────
-  product_mgr:{id:'product_mgr',name:'Chin Hui Soon',  role:'Product Manager',   dept:'Product',    isLead:true,  color:'#8b5cf6',
+  product_mgr:{id:'product_mgr',name:'Wei Xian Loh',   role:'Product Manager',   dept:'Product',    isLead:true,  color:'#8b5cf6',
     nav:['dashboard','projects','calendar','requests','backlog','items','kanban','test-plans','bugs','reports','team','settings']},
   ba:         {id:'ba',         name:'David Tan',       role:'Business Analyst',  dept:'Product',    isLead:false, color:'#6366f1',
     nav:['my-dashboard','requests','projects','calendar','backlog','my-work','submit-request']},
-  designer:   {id:'designer',   name:'Priya Nair',      role:'Product Designer',  dept:'Product',    isLead:false, color:'#a855f7',
+  designer:   {id:'designer',   name:'Chin Hui Soon',   role:'Product Designer',  dept:'Product',    isLead:false, color:'#a855f7',
     nav:['my-dashboard','my-work','requests','submit-request']},
 
   // ── IT DEPT ───────────────────────────────────────────────────────────────
@@ -1479,13 +1479,13 @@ let calendarDate = new Date();
 let activeProjectFilter = '';
 
 const SEED_PROJECTS = [
-  {id:'proj-001',name:'Customer Portal Revamp',desc:'Full revamp of the customer-facing portal with new UX.',dept:'Product',color:'#6366f1',status:'active',owner:'Chin Hui Soon',dueDate:'2026-08-31',created:'2026-05-01',taskCount:0},
+  {id:'proj-001',name:'Customer Portal Revamp',desc:'Full revamp of the customer-facing portal with new UX.',dept:'Product',color:'#6366f1',status:'active',owner:'Wei Xian Loh',dueDate:'2026-08-31',created:'2026-05-01',taskCount:0},
   {id:'proj-002',name:'Payroll System Upgrade',desc:'Upgrade the payroll module to support multi-currency.',dept:'Finance',color:'#14b8a6',status:'active',owner:'Lee Wei Hong',dueDate:'2026-07-15',created:'2026-05-05',taskCount:0},
   {id:'proj-003',name:'Mobile App v2.0',desc:'Rebuild the mobile app with React Native.',dept:'IT',color:'#10b981',status:'active',owner:'Ahmad Razif',dueDate:'2026-09-30',created:'2026-05-10',taskCount:0},
   {id:'proj-004',name:'Marketing Campaign Q3',desc:'Q3 digital marketing campaign across all channels.',dept:'Marketing',color:'#d946ef',status:'active',owner:'Siti Rahimah',dueDate:'2026-09-01',created:'2026-05-12',taskCount:0},
 ];
 
-const A_COLORS = {'Chin Hui Soon':'#8b5cf6','David Tan':'#6366f1','Priya Nair':'#a855f7','Ahmad Razif':'#10b981','Kevin Ong':'#0ea5e9','Sarah Lim':'#f59e0b','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Jenny Tan':'#14b8a6','Farah Nadia':'#f97316','Amirah Zain':'#f97316','Raymond Loh':'#0ea5e9','Michelle Yap':'#0ea5e9','Eric Tan':'#22c55e','Lisa Wong':'#22c55e','Siti Rahimah':'#d946ef','Jason Khoo':'#d946ef','Grace Koh':'#f43f5e','Henry Lau':'#f43f5e',"Dato' Razak":'#8b5cf6'};
+const A_COLORS = {'Wei Xian Loh':'#8b5cf6','Chin Hui Soon':'#a855f7','David Tan':'#6366f1','Priya Nair':'#a855f7','Ahmad Razif':'#10b981','Kevin Ong':'#0ea5e9','Sarah Lim':'#f59e0b','Nurul Ain':'#ec4899','Lee Wei Hong':'#14b8a6','Jenny Tan':'#14b8a6','Farah Nadia':'#f97316','Amirah Zain':'#f97316','Raymond Loh':'#0ea5e9','Michelle Yap':'#0ea5e9','Eric Tan':'#22c55e','Lisa Wong':'#22c55e','Siti Rahimah':'#d946ef','Jason Khoo':'#d946ef','Grace Koh':'#f43f5e','Henry Lau':'#f43f5e',"Dato' Razak":'#8b5cf6'};
 const DEPT_COLORS = {'Product':'#f5f3ff','IT':'#f0fdf4','Finance':'#f0fdfa','HR':'#fff7ed','BD':'#f0f9ff','Sales':'#f0fdf4','Marketing':'#fdf4ff','CS':'#fff1f2','Management':'#faf5ff'};
 
 // ═══════════════ LIVE DATA (populated by Firestore or demo) ═══════════════
