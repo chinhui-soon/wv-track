@@ -2141,11 +2141,15 @@ function renderItemsTable(){
   if(currentTypeFilter)data=data.filter(i=>i.type===currentTypeFilter);
   const q=document.getElementById('search-input').value.trim().toLowerCase();
   if(q)data=data.filter(i=>i.title.toLowerCase().includes(q)||i.id.toLowerCase().includes(q));
-  if(currentUser&&!['admin','pm'].includes(currentUser.id)){
-    if(['dev','qa'].includes(currentUser.id))data=data.filter(i=>i.dept==='IT');
-    else if(currentUser.id==='finance')data=data.filter(i=>i.dept==='Finance');
-    else if(currentUser.id==='hr')data=data.filter(i=>i.dept==='HR');
-    else if(currentUser.id==='ba')data=data.filter(i=>['IT','Business'].includes(i.dept));
+  if(currentUser&&!['product_mgr','it_mgr'].includes(currentUser.id)){
+    if(['it_lead','it_snr','it'].includes(currentUser.id))data=data.filter(i=>i.dept==='IT');
+    else if(['finance_mgr','finance_lead','finance_snr','finance'].includes(currentUser.id))data=data.filter(i=>i.dept==='Finance');
+    else if(['hr_mgr','hr_lead','hr_snr','hr'].includes(currentUser.id))data=data.filter(i=>i.dept==='HR');
+    else if(['bd_mgr','bd_lead','bd_snr','bd'].includes(currentUser.id))data=data.filter(i=>i.dept==='BD');
+    else if(['sales_mgr','sales_lead','sales_snr','sales'].includes(currentUser.id))data=data.filter(i=>i.dept==='Sales');
+    else if(['mkt_mgr','mkt_lead','mkt_snr','mkt'].includes(currentUser.id))data=data.filter(i=>i.dept==='Marketing');
+    else if(['cs_mgr','cs_lead','cs_snr','cs'].includes(currentUser.id))data=data.filter(i=>i.dept==='CS');
+    else if(!currentUser.isLead)data=data.filter(i=>i.assignee===currentUser.name);
   }
   data.sort((a,b)=>{let va=a[sortKey]||'',vb=b[sortKey]||'';return va<vb?-sortDir:va>vb?sortDir:0;});
   const tbody=document.getElementById('items-tbody');if(!tbody)return;
@@ -2197,8 +2201,8 @@ function filterSub(type,f,btn){
 function renderKanban(){
   const cols=[{k:'open',l:'To Do',c:'#3b82f6'},{k:'in-progress',l:'In Progress',c:'#f59e0b'},{k:'review',l:'Review',c:'#9333ea'},{k:'done',l:'Done',c:'#10b981'}];
   let data=[...items];
-  if(currentUser&&!['admin','pm'].includes(currentUser.id)){
-    if(['dev','qa','support'].includes(currentUser.id))data=data.filter(i=>i.assignee===currentUser.name);
+  if(currentUser&&!['product_mgr','it_mgr'].includes(currentUser.id)){
+    if(!currentUser.isLead)data=data.filter(i=>i.assignee===currentUser.name);
   }
   document.getElementById('kanban-board').innerHTML=cols.map(col=>{
     const ci=data.filter(i=>i.status===col.k);
